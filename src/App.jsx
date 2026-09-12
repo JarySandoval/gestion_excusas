@@ -1,122 +1,244 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Hello World </h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app">
 
-      <div className="ticks"></div>
+      {/* Barra lateral */}
+      <aside className="sidebar">
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        <div className="logo">
+          IED
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        <h2>La Victoria</h2>
+
+        <p className="sidebar-subtitle">
+          Sistema de Excusas
+        </p>
+
+        <nav className="menu">
+
+          <button className="menu-item active">
+            Mis excusas
+          </button>
+
+          <button className="menu-item">
+            Nueva excusa
+          </button>
+
+        </nav>
+
+      </aside>
+
+
+      {/* Contenido principal */}
+      <main className="main-content">
+
+        {/* Encabezado */}
+        <header className="header">
+
+          <div>
+            <h1>Mis excusas</h1>
+
+            <p>
+              Consulta el estado de tus excusas escolares
+            </p>
+          </div>
+
+          <div className="user">
+
+            <div className="user-info">
+              <strong>Estudiante</strong>
+              <span>Estudiante</span>
+            </div>
+
+            <div className="avatar">
+              ES
+            </div>
+
+          </div>
+
+        </header>
+
+
+        {/* Botón */}
+        <div className="top-actions">
+
+          <button className="primary-button">
+            + Nueva excusa
+          </button>
+
+        </div>
+
+
+        {/* Resumen */}
+        <section className="summary">
+
+          <div className="summary-card">
+
+            <span className="summary-title">
+              Total de excusas
+            </span>
+
+            <strong>4</strong>
+
+          </div>
+
+
+          <div className="summary-card">
+
+            <span className="summary-title">
+              Pendientes
+            </span>
+
+            <strong>1</strong>
+
+          </div>
+
+
+          <div className="summary-card">
+
+            <span className="summary-title">
+              Aprobadas
+            </span>
+
+            <strong>3</strong>
+
+          </div>
+
+        </section> 
+
+
+        {/* Lista de excusas */}
+        <section className="excuses-section">
+
+          <div className="section-header">
+
+            <div>
+              <h2>Excusas registradas</h2>
+
+              <p>
+                Historial de tus solicitudes hoyyyy
+              </p>
+            </div>
+
+          </div>
+
+
+          {/* Excusa 1 */}
+          <div className="excuse-card">
+
+            <div className="excuse-main">
+
+              <div className="excuse-icon">
+                E
+              </div>
+
+              <div>
+
+                <h3>
+                  Excusa por cita médica
+                </h3>
+
+                <p>
+                  12 de septiembre de 2026
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div className="excuse-status pending">
+              Pendiente
+            </div>
+
+
+            <button className="details-button">
+              Ver detalle
+            </button>
+
+          </div>
+
+
+          {/* Excusa 2 */}
+          <div className="excuse-card">
+
+            <div className="excuse-main">
+
+              <div className="excuse-icon">
+                E
+              </div>
+
+              <div>
+
+                <h3>
+                  Excusa por calamidad familiar
+                </h3>
+
+                <p>
+                  5 de septiembre de 2026
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div className="excuse-status approved">
+              Aprobada
+            </div>
+
+
+            <button className="details-button">
+              Ver detalle
+            </button>
+
+          </div>
+
+
+          {/* Excusa 3 */}
+          <div className="excuse-card">
+
+            <div className="excuse-main">
+
+              <div className="excuse-icon">
+                E
+              </div>
+
+              <div>
+
+                <h3>
+                  Excusa por enfermedad
+                </h3>
+
+                <p>
+                  28 de agosto de 2026
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div className="excuse-status approved">
+              Aprobada
+            </div>
+
+
+            <button className="details-button">
+              Ver detalle
+            </button>
+
+          </div>
+
+        </section>
+
+      </main>
+
+    </div>
+  );
 }
 
-export default App
+export default App;

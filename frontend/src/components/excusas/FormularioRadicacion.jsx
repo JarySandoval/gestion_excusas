@@ -168,10 +168,10 @@ export default function FormularioRadicacion({ onExcusaRadicada }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
       
       {/* Alerta Institucional */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 sm:p-4 flex items-start gap-3">
         <ShieldAlert className="w-5 h-5 text-blue-800 shrink-0 mt-0.5" />
         <div className="text-xs text-blue-900 leading-relaxed">
           <strong>Aviso institucional:</strong> En la IED La Victoria no existen aprobaciones o rechazos arbitrarios. Toda excusa nace radicada legalmente y quedará a disposición de los directivos y docentes.
@@ -179,7 +179,7 @@ export default function FormularioRadicacion({ onExcusaRadicada }) {
       </div>
 
       {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl p-4 flex items-start gap-3 text-sm">
+        <div className="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl p-3.5 sm:p-4 flex items-start gap-3 text-xs sm:text-sm">
           <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
@@ -188,11 +188,11 @@ export default function FormularioRadicacion({ onExcusaRadicada }) {
       {/* Rango de Fechas o Indefinida */}
       <div className="space-y-4">
         <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-blue-800" />
+          <Calendar className="w-4 h-4 text-blue-800 shrink-0" />
           Período de Ausencia
         </h4>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
               Fecha de Inicio (Desde) *
@@ -228,21 +228,23 @@ export default function FormularioRadicacion({ onExcusaRadicada }) {
         </div>
 
         {/* Toggle Es Indefinida */}
-        <div className="flex items-center gap-3 pt-1">
+        <div className="flex items-start gap-2.5 sm:gap-3 pt-1">
           <input
             type="checkbox"
             id="es_indefinida"
             name="es_indefinida"
             checked={formData.es_indefinida}
             onChange={handleChange}
-            className="w-4 h-4 text-blue-800 rounded border-slate-300 focus:ring-blue-600 cursor-pointer"
+            className="w-4 h-4 text-blue-800 rounded border-slate-300 focus:ring-blue-600 cursor-pointer mt-0.5 shrink-0"
           />
-          <label htmlFor="es_indefinida" className="text-xs font-semibold text-slate-800 cursor-pointer">
-            Marcar como Inasistencia Indefinida (HU-08)
-          </label>
-          <span className="text-[11px] text-slate-500">
-            (Para hospitalizaciones o tratamientos que requerirán soporte médico de alta al reintegrarse)
-          </span>
+          <div>
+            <label htmlFor="es_indefinida" className="text-xs font-semibold text-slate-800 cursor-pointer block">
+              Marcar como Inasistencia Indefinida (HU-08)
+            </label>
+            <span className="text-[11px] text-slate-500 block mt-0.5 leading-tight">
+              (Para hospitalizaciones o tratamientos que requerirán soporte médico de alta al reintegrarse)
+            </span>
+          </div>
         </div>
       </div>
 
@@ -356,12 +358,12 @@ export default function FormularioRadicacion({ onExcusaRadicada }) {
                 name="es_restringido"
                 checked={formData.es_restringido}
                 onChange={handleChange}
-                className="w-4 h-4 text-rose-600 rounded border-rose-300 focus:ring-rose-500 mt-0.5 cursor-pointer"
+                className="w-4 h-4 text-rose-600 rounded border-rose-300 focus:ring-rose-500 mt-0.5 cursor-pointer shrink-0"
               />
               <div>
                 <label htmlFor="es_restringido" className="text-xs font-bold text-rose-900 flex items-center gap-1.5 cursor-pointer">
-                  <Lock className="w-3.5 h-3.5 text-rose-700" />
-                  Marcar este anexo como Documento Restringido / Confidencial (HU-09)
+                  <Lock className="w-3.5 h-3.5 text-rose-700 shrink-0" />
+                  <span>Marcar este anexo como Documento Restringido / Confidencial (HU-09)</span>
                 </label>
                 <p className="text-[11px] text-rose-700 mt-0.5 leading-relaxed">
                   Si activa esta opción, el documento adjunto solo podrá ser visualizado y descargado por la <strong>Coordinación Escolar</strong>. Los docentes verán una advertencia explícita de confidencialidad y no tendrán acceso a la descarga.
@@ -373,11 +375,11 @@ export default function FormularioRadicacion({ onExcusaRadicada }) {
       </div>
 
       {/* Botón de Enviar */}
-      <div className="pt-4 flex justify-end">
+      <div className="pt-3 sm:pt-4 flex justify-end">
         <button
           type="submit"
           disabled={submitting}
-          className="flex items-center gap-2 px-6 py-2.5 bg-blue-900 hover:bg-blue-800 text-white font-semibold text-sm rounded-xl shadow-xs transition-all disabled:opacity-50 cursor-pointer"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 sm:py-2.5 bg-blue-900 hover:bg-blue-800 text-white font-semibold text-sm rounded-xl shadow-xs transition-all disabled:opacity-50 cursor-pointer"
         >
           {submitting ? (
             <span>Radicando Excusa...</span>

@@ -81,10 +81,10 @@ export default function ExcusasAbiertasPage() {
                 {item.descripcion}
               </p>
 
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+              <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2.5 pt-2 border-t border-slate-100">
                 <button
                   onClick={() => setDetalleId(item.id)}
-                  className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900"
+                  className="flex items-center justify-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 py-1.5 sm:py-0 cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>Ver Detalle</span>
@@ -92,10 +92,10 @@ export default function ExcusasAbiertasPage() {
 
                 <button
                   onClick={() => handleCerrar(item)}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-2xs transition-colors cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-2xs transition-colors cursor-pointer"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Registrar Retorno y Alta (HU-08)</span>
+                  <span>Registrar Retorno y Alta</span>
                 </button>
               </div>
             </div>

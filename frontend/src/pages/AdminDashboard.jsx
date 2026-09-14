@@ -5,17 +5,10 @@ import { api } from '../api/client';
 import AdvancedFilterBar from '../components/filters/AdvancedFilterBar';
 import TablaExcusas from '../components/excusas/TablaExcusas';
 import DetalleExcusaModal from '../components/excusas/DetalleExcusaModal';
-import {
-  CalendarCheck2,
-  FileSpreadsheet,
-  Users,
-  ShieldCheck,
-  CheckCircle,
-  AlertCircle
-} from 'lucide-react';
+import { CalendarCheck2 } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const { user, isCoordinador, isDocente } = useAuth();
+  const { isCoordinador } = useAuth();
   
   // HU-04: Por defecto filtra las novedades del día (CURDATE())
   const {
@@ -48,21 +41,21 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       
       {/* Encabezado del Dashboard Administrativo */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <CalendarCheck2 className="w-5 h-5 text-blue-900" />
-            Novedades y Consulta Diaria de Excusas (HU-04)
+          <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <CalendarCheck2 className="w-5 h-5 text-blue-900 shrink-0" />
+            <span>Novedades y Consulta Diaria (HU-04)</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Portal administrativo institucional • {isCoordinador ? 'Vista de Coordinación' : 'Vista Docente'}
+            Portal institucional • {isCoordinador ? 'Coordinación' : 'Docente'}
           </p>
         </div>
 
         {/* Badge Institucional */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <span className="text-xs font-semibold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs">
-            Vigencia Activa: <strong>2026</strong>
+            Vigencia: <strong>2026</strong>
           </span>
         </div>
       </div>

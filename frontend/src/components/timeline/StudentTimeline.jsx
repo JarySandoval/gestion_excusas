@@ -34,16 +34,16 @@ export default function StudentTimeline({
       
       {/* Tarjeta de Identificación del Estudiante */}
       {estudiante && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-900 flex items-center justify-center font-black text-lg">
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 sm:gap-4">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-blue-100 text-blue-900 flex items-center justify-center font-black text-base sm:text-lg shrink-0">
               {estudiante.nombre[0]}{estudiante.apellido[0]}
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900">
                 {estudiante.nombre} {estudiante.apellido}
               </h2>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mt-0.5">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-slate-500 mt-0.5">
                 <span>Documento: <strong>{estudiante.identificacion}</strong></span>
                 <span>•</span>
                 <span>Usuario: <strong>{estudiante.usuario}</strong></span>
@@ -52,7 +52,7 @@ export default function StudentTimeline({
           </div>
 
           {/* Historial de Matrículas por Vigencia */}
-          <div className="text-right sm:border-l sm:border-slate-100 sm:pl-6 space-y-1">
+          <div className="text-left sm:text-right sm:border-l sm:border-slate-100 sm:pl-6 space-y-1 w-full sm:w-auto">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
               Trayectoria Académica
             </span>

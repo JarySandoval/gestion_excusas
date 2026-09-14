@@ -45,9 +45,9 @@ export default function EstudianteDashboard() {
     <div className="space-y-6">
       
       {/* Header del Dashboard Estudiantil */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
             Mis Excusas Escolares
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -57,7 +57,7 @@ export default function EstudianteDashboard() {
 
         <button
           onClick={() => navigate('/portal/radicar')}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-900 hover:bg-blue-800 text-white rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-900 hover:bg-blue-800 text-white rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer"
         >
           <PlusCircle className="w-4 h-4" />
           <span>Radicar Nueva Excusa (HU-02)</span>
@@ -66,7 +66,7 @@ export default function EstudianteDashboard() {
 
       {/* Alerta si tiene excusas indefinidas abiertas (HU-08) */}
       {abiertas.length > 0 && (
-        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
             <div>
@@ -80,7 +80,7 @@ export default function EstudianteDashboard() {
           </div>
           <button
             onClick={() => navigate('/portal/abiertas')}
-            className="px-3.5 py-1.5 bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold rounded-xl shadow-xs transition-colors shrink-0"
+            className="w-full sm:w-auto text-center px-3.5 py-2 sm:py-1.5 bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold rounded-xl shadow-xs transition-colors shrink-0 cursor-pointer"
           >
             Gestionar Cierre
           </button>
@@ -88,52 +88,52 @@ export default function EstudianteDashboard() {
       )}
 
       {/* Tarjetas de Resumen Numérico */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-2xs">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
             Total Radicadas
           </span>
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-2xl font-black text-slate-900">{total}</span>
-            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
-              <FileText className="w-4 h-4" />
+          <div className="flex items-center justify-between mt-1.5 sm:mt-2">
+            <span className="text-xl sm:text-2xl font-black text-slate-900">{total}</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-2xs">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
             Definidas
           </span>
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-2xl font-black text-blue-700">{definidas.length}</span>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700">
-              <CheckCircle2 className="w-4 h-4" />
+          <div className="flex items-center justify-between mt-1.5 sm:mt-2">
+            <span className="text-xl sm:text-2xl font-black text-blue-700">{definidas.length}</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700">
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-2xs">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
             Abiertas (HU-08)
           </span>
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-2xl font-black text-amber-700">{abiertas.length}</span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-700">
-              <Clock className="w-4 h-4" />
+          <div className="flex items-center justify-between mt-1.5 sm:mt-2">
+            <span className="text-xl sm:text-2xl font-black text-amber-700">{abiertas.length}</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-700">
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-2xs">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
             Cerradas con Alta
           </span>
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-2xl font-black text-emerald-700">{cerradas.length}</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700">
-              <CheckCircle2 className="w-4 h-4" />
+          <div className="flex items-center justify-between mt-1.5 sm:mt-2">
+            <span className="text-xl sm:text-2xl font-black text-emerald-700">{cerradas.length}</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700">
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
         </div>

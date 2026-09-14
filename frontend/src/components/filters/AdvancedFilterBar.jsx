@@ -7,8 +7,9 @@ import {
   Filter,
   RefreshCw,
   FileSpreadsheet,
-  CheckSquare,
-  Square
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 export default function AdvancedFilterBar({
@@ -21,6 +22,17 @@ export default function AdvancedFilterBar({
   const { cursos, motivos } = useCatalogos();
   const { isCoordinador } = useAuth();
   const [exporting, setExporting] = useState(false);
+  const [filtrosVisibles, setFiltrosVisibles] = useState(false);
+
+  // Calcular número de filtros activos distintos de los valores por defecto
+  const filtrosActivos = [
+    filters.estudiante,
+    filters.id_curso,
+    filters.motivo,
+    filters.es_indefinida,
+    filters.fecha_desde,
+    filters.fecha_hasta
+  ].filter(v => v !== undefined && v !== '').length;
 
   const handleInputChange = (field, value) => {
     onFilterChange({ [field]: value });
@@ -44,33 +56,52 @@ export default function AdvancedFilterBar({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+    <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-4">
       
       {/* Barra superior: Título, Filtro Hoy y Exportar CSV (HU-07) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-        <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-blue-900" />
-          <h3 className="text-sm font-bold text-slate-800">
-            Filtros Avanzados de Consulta
-          </h3>
-          <span className="text-xs bg-slate-100 text-slate-600 font-semibold px-2 py-0.5 rounded-full">
-            {totalResultados} resultado(s)
-          </span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3 sm:pb-4">
+        <div className="flex items-center justify-between sm:justify-start gap-2">
+          <div className="flex items-center gap-2">
+            <Filter className="w-5 h-5 text-blue-900 shrink-0" />
+            <h3 className="text-sm font-bold text-slate-800">
+              Filtros Avanzados
+            </h3>
+            <span className="text-xs bg-slate-100 text-slate-600 font-semibold px-2 py-0.5 rounded-full">
+              {totalResultados}
+            </span>
+          </div>
+
+          {/* Botón toggle de filtros para móviles (< md) */}
+          <button
+            type="button"
+            onClick={() => setFiltrosVisibles(prev => !prev)}
+            className="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5 text-blue-900" />
+            <span>Filtros</span>
+            {filtrosActivos > 0 && (
+              <span className="w-4 h-4 rounded-full bg-blue-900 text-white text-[10px] flex items-center justify-center font-bold">
+                {filtrosActivos}
+              </span>
+            )}
+            {filtrosVisibles ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        {/* Acciones principales: Novedades de hoy, CSV y Reset */}
+        <div className="flex flex-wrap items-center gap-2">
           
           {/* Botón Novedades de Hoy (HU-04) */}
           <button
             onClick={handleToggleSoloHoy}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               filters.solo_hoy === 'true'
                 ? 'bg-blue-900 text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>Novedades del Día ({new Date().toISOString().slice(0, 10)})</span>
+            <Calendar className="w-3.5 h-3.5 shrink-0" />
+            <span>Novedades del Día</span>
           </button>
 
           {/* HU-07: Exportación CSV ÚNICAMENTE para Coordinador (id_rol = 1) */}
@@ -79,10 +110,10 @@ export default function AdvancedFilterBar({
               onClick={handleExport}
               disabled={exporting}
               title="Descargar reporte consolidado en Excel/CSV según los filtros activos"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition-all disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition-all disabled:opacity-50 cursor-pointer"
             >
-              <FileSpreadsheet className="w-4 h-4" />
-              <span>{exporting ? 'Generando...' : 'Exportar CSV'}</span>
+              <FileSpreadsheet className="w-4 h-4 shrink-0" />
+              <span>{exporting ? 'Exportando...' : 'Exportar CSV'}</span>
             </button>
           )}
 
@@ -90,7 +121,7 @@ export default function AdvancedFilterBar({
           <button
             onClick={onResetFilters}
             title="Restablecer todos los filtros"
-            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer border border-slate-200 sm:border-transparent"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -98,13 +129,17 @@ export default function AdvancedFilterBar({
         </div>
       </div>
 
-      {/* Cuadrícula de Controles de Filtro */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+      {/* Cuadrícula de Controles de Filtro (Siempre visible en md+, colapsable en móviles) */}
+      <div
+        className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs transition-all ${
+          filtrosVisibles ? 'grid' : 'hidden md:grid'
+        }`}
+      >
         
         {/* Búsqueda por Estudiante */}
         <div>
           <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-            Estudiante (Nombre o Documento)
+            Estudiante (Nombre o Doc)
           </label>
           <div className="relative">
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />

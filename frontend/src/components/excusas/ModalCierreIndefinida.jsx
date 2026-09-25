@@ -32,7 +32,7 @@ export default function ModalCierreIndefinida({
 
     // HU-08: Soporte médico obligatorio
     if (!soporteAlta) {
-      setError('Es obligatorio adjuntar el soporte o certificado médico de alta para efectuar el cierre formal (HU-08).');
+      setError('Es obligatorio adjuntar el soporte o certificado médico de alta para efectuar el cierre formal.');
       return;
     }
 
@@ -62,7 +62,7 @@ export default function ModalCierreIndefinida({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Cierre Formal de Excusa Indefinida (HU-08)"
+      title="Cierre Formal de Excusa Indefinida"
       maxWidth="max-w-lg"
     >
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -87,7 +87,7 @@ export default function ModalCierreIndefinida({
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5 text-xs text-amber-900">
           <ShieldAlert className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
           <span>
-            <strong>Requisito institucional HU-08:</strong> El cierre de una inasistencia médica o indefinida requiere fijar la fecha real de reincorporación y adjuntar obligatoriamente el alta médica oficial.
+            <strong>Requisito institucional:</strong> El cierre de una inasistencia médica o indefinida requiere fijar la fecha real de reincorporación y adjuntar obligatoriamente el alta médica oficial.
           </span>
         </div>
 

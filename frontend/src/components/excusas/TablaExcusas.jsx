@@ -270,7 +270,7 @@ export default function TablaExcusas({
                         {estaAbierta && onCerrarIndefinida && (
                           <button
                             onClick={() => onCerrarIndefinida(excusa)}
-                            title="Cerrar excusa indefinida (HU-08)"
+                            title="Cerrar excusa indefinida"
                             className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-colors shadow-2xs cursor-pointer"
                           >
                             <CheckCircle className="w-3.5 h-3.5" />

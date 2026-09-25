@@ -333,6 +333,7 @@ export async function detalleExcusa(req, res, next) {
     const seguimientos = await query(`
       SELECT 
         s.id, s.id_excusa, s.id_usuario, s.observacion, s.fecha_hora,
+        TIMESTAMPDIFF(SECOND, s.fecha_hora, NOW()) AS segundos_transcurridos,
         u.nombre AS autor_nombre, u.apellido AS autor_apellido, r.nombre AS autor_rol
       FROM \`G1-seguimiento\` s
       INNER JOIN usuario u ON s.id_usuario = u.id

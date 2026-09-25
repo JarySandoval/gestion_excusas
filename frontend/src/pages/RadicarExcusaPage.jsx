@@ -20,7 +20,7 @@ export default function RadicarExcusaPage() {
         <div>
           <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
             <FilePlus2 className="w-5 h-5 text-blue-900" />
-            Radicación de Excusa Escolar (HU-02)
+            Radicación de Excusa Escolar
           </h2>
           <p className="text-xs text-slate-500">
             Diligencie la información para radicar formalmente la inasistencia a clases

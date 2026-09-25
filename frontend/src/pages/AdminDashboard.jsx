@@ -45,7 +45,7 @@ export default function AdminDashboard() {
         <div>
           <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
             <CalendarCheck2 className="w-5 h-5 text-blue-900 shrink-0" />
-            <span>Novedades y Consulta Diaria (HU-04)</span>
+            <span>Novedades y Consulta Diaria</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Portal institucional • {isCoordinador ? 'Coordinación' : 'Docente'}

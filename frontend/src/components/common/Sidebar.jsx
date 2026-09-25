@@ -101,7 +101,7 @@ export default function Sidebar({ isOpen, onClose }) {
                   className={({ isActive }) => isActive ? activeClass : inactiveClass}
                 >
                   <Clock className="w-4 h-4" />
-                  <span>Excusas Abiertas (HU-08)</span>
+                  <span>Excusas Abiertas</span>
                 </NavLink>
 
                 <NavLink
@@ -129,7 +129,7 @@ export default function Sidebar({ isOpen, onClose }) {
                   className={({ isActive }) => isActive ? activeClass : inactiveClass}
                 >
                   <CalendarCheck2 className="w-4 h-4" />
-                  <span>Novedades del Día (HU-04)</span>
+                  <span>Novedades del Día</span>
                 </NavLink>
 
                 <NavLink
@@ -138,7 +138,7 @@ export default function Sidebar({ isOpen, onClose }) {
                   className={({ isActive }) => isActive ? activeClass : inactiveClass}
                 >
                   <Users className="w-4 h-4" />
-                  <span>Línea de Tiempo (HU-05)</span>
+                  <span>Línea de Tiempo</span>
                 </NavLink>
               </nav>
             </div>

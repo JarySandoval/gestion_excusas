@@ -59,7 +59,7 @@ export default function HistorialEstudiantePage() {
       <div>
         <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
           <History className="w-5 h-5 text-blue-900" />
-          Línea de Tiempo del Estudiante (HU-05)
+          Línea de Tiempo del Estudiante
         </h2>
         <p className="text-xs text-slate-500 mt-0.5">
           Historial acumulado cronológico de inasistencias y excusas a través de las diferentes vigencias académicas

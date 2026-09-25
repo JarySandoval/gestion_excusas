@@ -21,7 +21,7 @@ export function ModalidadBadge({ esIndefinida, fechaRetorno }) {
   return (
     <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md text-[11px] sm:text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-300 animate-pulse shrink-0">
       <Clock className="w-3.5 h-3.5 shrink-0" />
-      <span>Abierta (HU-08)</span>
+      <span>Abierta</span>
     </span>
   );
 }

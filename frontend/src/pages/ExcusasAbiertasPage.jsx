@@ -22,7 +22,7 @@ export default function ExcusasAbiertasPage() {
       <div>
         <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
           <Clock className="w-5 h-5 text-amber-600" />
-          Cierre Formal de Excusas Indefinidas (HU-08)
+          Cierre Formal de Excusas Indefinidas
         </h2>
         <p className="text-xs text-slate-500 mt-0.5">
           Lista de inasistencias médicas o prolongadas que se encuentran abiertas a la espera de fecha de retorno y soporte médico de alta.

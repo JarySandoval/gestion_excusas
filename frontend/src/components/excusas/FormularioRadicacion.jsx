@@ -239,7 +239,7 @@ export default function FormularioRadicacion({ onExcusaRadicada }) {
           />
           <div>
             <label htmlFor="es_indefinida" className="text-xs font-semibold text-slate-800 cursor-pointer block">
-              Marcar como Inasistencia Indefinida (HU-08)
+              Marcar como Inasistencia Indefinida
             </label>
             <span className="text-[11px] text-slate-500 block mt-0.5 leading-tight">
               (Para hospitalizaciones o tratamientos que requerirán soporte médico de alta al reintegrarse)
@@ -363,7 +363,7 @@ export default function FormularioRadicacion({ onExcusaRadicada }) {
               <div>
                 <label htmlFor="es_restringido" className="text-xs font-bold text-rose-900 flex items-center gap-1.5 cursor-pointer">
                   <Lock className="w-3.5 h-3.5 text-rose-700 shrink-0" />
-                  <span>Marcar este anexo como Documento Restringido / Confidencial (HU-09)</span>
+                  <span>Marcar este anexo como Documento Restringido / Confidencial</span>
                 </label>
                 <p className="text-[11px] text-rose-700 mt-0.5 leading-relaxed">
                   Si activa esta opción, el documento adjunto solo podrá ser visualizado y descargado por la <strong>Coordinación Escolar</strong>. Los docentes verán una advertencia explícita de confidencialidad y no tendrán acceso a la descarga.

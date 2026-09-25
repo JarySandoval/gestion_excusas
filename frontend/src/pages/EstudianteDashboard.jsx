@@ -60,7 +60,7 @@ export default function EstudianteDashboard() {
           className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-900 hover:bg-blue-800 text-white rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>Radicar Nueva Excusa (HU-02)</span>
+          <span>Radicar Nueva Excusa</span>
         </button>
       </div>
 
@@ -71,7 +71,7 @@ export default function EstudianteDashboard() {
             <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
             <div>
               <h4 className="text-xs font-bold text-amber-950">
-                Atención: Tiene {abiertas.length} excusa(s) indefinida(s) pendiente(s) de cierre formal (HU-08)
+                Atención: Tiene {abiertas.length} excusa(s) indefinida(s) pendiente(s) de cierre formal
               </h4>
               <p className="text-xs text-amber-800 mt-0.5">
                 Al reincorporarse a la jornada escolar, debe registrar la fecha de retorno y adjuntar el soporte médico de alta.
@@ -116,7 +116,7 @@ export default function EstudianteDashboard() {
 
         <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-2xs">
           <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-            Abiertas (HU-08)
+            Abiertas
           </span>
           <div className="flex items-center justify-between mt-1.5 sm:mt-2">
             <span className="text-xl sm:text-2xl font-black text-amber-700">{abiertas.length}</span>

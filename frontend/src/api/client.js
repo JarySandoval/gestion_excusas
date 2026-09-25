@@ -124,6 +124,23 @@ export const api = {
     return handleResponse(res);
   },
 
+  editarSeguimiento: async (idSeguimiento, observacion) => {
+    const res = await fetch(`${BASE_URL}/seguimientos/${idSeguimiento}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify({ observacion })
+    });
+    return handleResponse(res);
+  },
+
+  eliminarSeguimiento: async (idSeguimiento) => {
+    const res = await fetch(`${BASE_URL}/seguimientos/${idSeguimiento}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return handleResponse(res);
+  },
+
   // Catálogos
   getCursos: async () => {
     const res = await fetch(`${BASE_URL}/catalogos/cursos`, {

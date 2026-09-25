@@ -64,7 +64,7 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-100 p-5 sm:p-8 space-y-5 sm:space-y-6">
           <div className="text-center">
             <h2 className="text-base sm:text-lg font-bold text-slate-800">
-              Autenticación Institucional (HU-01)
+              Autenticación Institucional
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               Ingrese con sus credenciales institucionales asignadas

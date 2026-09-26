@@ -29,24 +29,29 @@ export default function TablaExcusas({
       <div className="md:hidden space-y-3">
         {excusas.map((excusa) => {
           const tieneRestringido = excusa.anexos?.some(a => Boolean(a.es_restringido));
-          const estaAbierta = Boolean(excusa.es_indefinida) && !excusa.fecha_retorno;
+          const estaAbierta = Boolean(excusa.es_indefinida) && !excusa.fecha_retorno && !excusa.es_anulada;
 
           return (
             <div
               key={excusa.id}
-              className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs hover:border-blue-300 transition-all space-y-3"
+              className={`rounded-2xl border p-4 shadow-xs transition-all space-y-3 ${
+                excusa.es_anulada 
+                  ? 'bg-slate-50/70 border-slate-200 opacity-80' 
+                  : 'bg-white border-slate-200 hover:border-blue-300'
+              }`}
             >
               {/* Cabecera de la Tarjeta */}
               <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-sm text-blue-900">
+                  <span className={`font-mono font-bold text-sm ${excusa.es_anulada ? 'text-slate-400 line-through' : 'text-blue-900'}`}>
                     {excusa.radicado}
                   </span>
                   <ModalidadBadge
                     esIndefinida={Boolean(excusa.es_indefinida)}
                     fechaRetorno={excusa.fecha_retorno}
                     fechaHasta={excusa.fecha_hasta}
-                    fechaDesde={excusa.fecha_desde}
+                    esAnulada={Boolean(excusa.es_anulada)}
+                    motivoAnulacion={excusa.motivo_anulacion}
                   />
                 </div>
                 {estaAbierta && (
@@ -171,13 +176,20 @@ export default function TablaExcusas({
             <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
               {excusas.map((excusa) => {
                 const tieneRestringido = excusa.anexos?.some(a => Boolean(a.es_restringido));
-                const estaAbierta = Boolean(excusa.es_indefinida) && !excusa.fecha_retorno;
+                const estaAbierta = Boolean(excusa.es_indefinida) && !excusa.fecha_retorno && !excusa.es_anulada;
 
                 return (
-                  <tr key={excusa.id} className="hover:bg-slate-50/60 transition-colors">
+                  <tr
+                    key={excusa.id}
+                    className={`transition-colors ${
+                      excusa.es_anulada 
+                        ? 'bg-slate-50/70 hover:bg-slate-100/60 opacity-80' 
+                        : 'hover:bg-slate-50/60'
+                    }`}
+                  >
                     
                     {/* Radicado */}
-                    <td className="py-3 px-4 font-mono font-bold text-blue-900 whitespace-nowrap">
+                    <td className={`py-3 px-4 font-mono font-bold whitespace-nowrap ${excusa.es_anulada ? 'text-slate-400 line-through' : 'text-blue-900'}`}>
                       {excusa.radicado}
                     </td>
 
@@ -218,7 +230,8 @@ export default function TablaExcusas({
                         esIndefinida={Boolean(excusa.es_indefinida)}
                         fechaRetorno={excusa.fecha_retorno}
                         fechaHasta={excusa.fecha_hasta}
-                        fechaDesde={excusa.fecha_desde}
+                        esAnulada={Boolean(excusa.es_anulada)}
+                        motivoAnulacion={excusa.motivo_anulacion}
                       />
                     </td>
 

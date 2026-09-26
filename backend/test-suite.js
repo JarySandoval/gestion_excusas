@@ -101,6 +101,134 @@ async function runTestSuite() {
   assert(validateCierreIndefinida(excusaIndefinida, '2026-09-08', null).valid === true, 'Cierre con fecha válida y SIN soporte médico ahora es permitido (opcional)');
   assert(validateCierreIndefinida(excusaIndefinida, '2026-08-25', null).valid === false, 'Fecha de retorno anterior a fecha_desde sigue siendo rechazada');
 
+  // PRUEBA 7: Detección y Bloqueo de Solapamiento de Excusas (Calendario Libre / Ocupado)
+  console.log('\n7. Verificando Prevención de Solapamiento de Excusas:');
+  function checkSolapamiento(existentes, nueva) {
+    const nuevaDesde = nueva.fecha_desde;
+    const nuevaHasta = nueva.es_indefinida ? '9999-12-31' : nueva.fecha_hasta;
+
+    for (const ex of existentes) {
+      // Si la excusa existente está anulada, NO bloquea el calendario
+      if (ex.es_anulada) continue;
+
+      const exDesde = ex.fecha_desde;
+      const exHasta = ex.fecha_retorno || ex.fecha_hasta || '9999-12-31';
+
+      // Intersección de intervalos cerrados [A, B] y [C, D]: A <= D && C <= B
+      if (nuevaDesde <= exHasta && exDesde <= nuevaHasta) {
+        return { solapada: true, conflictoCon: ex.radicado };
+      }
+    }
+    return { solapada: false };
+  }
+
+  const excusasRegistradas = [
+    { radicado: 'EXC-001', fecha_desde: '2026-10-05', fecha_hasta: '2026-10-10', es_indefinida: false, es_anulada: 0 },
+    { radicado: 'EXC-002', fecha_desde: '2026-10-15', fecha_hasta: null, fecha_retorno: '2026-10-20', es_indefinida: true, es_anulada: 0 },
+    { radicado: 'EXC-003', fecha_desde: '2026-10-25', fecha_hasta: '2026-10-28', es_indefinida: false, es_anulada: 1 } // ANULADA
+  ];
+
+  // Caso A: Solapamiento directo con excusa definida
+  assert(checkSolapamiento(excusasRegistradas, { fecha_desde: '2026-10-08', fecha_hasta: '2026-10-12', es_indefinida: false }).solapada === true,
+    'Debe detectar y rechazar solapamiento con excusa definida activa');
+
+  // Caso B: Período libre entre EXC-001 y EXC-002
+  assert(checkSolapamiento(excusasRegistradas, { fecha_desde: '2026-10-11', fecha_hasta: '2026-10-14', es_indefinida: false }).solapada === false,
+    'Debe permitir radicar en períodos libres entre excusas');
+
+  // Caso C: Coincidencia con excusa ANULADA (debe permitir radicarse pues el calendario quedó libre)
+  assert(checkSolapamiento(excusasRegistradas, { fecha_desde: '2026-10-25', fecha_hasta: '2026-10-28', es_indefinida: false }).solapada === false,
+    'Excusa anulada DEBE liberar el período y no causar conflicto de solapamiento');
+
+  // PRUEBA 8: Regla de Anulación Institucional y Ventana de 15 Minutos
+  console.log('\n8. Verificando Regla de Anulación Institucional (Ventana de 15 Minutos):');
+  function puedeAnular(usuario, excusa, segundosTranscurridos) {
+    if (excusa.es_anulada) return { permitido: false, razon: 'Ya anulada' };
+    // Docente (rol 2) o Coordinador (rol 1) tienen permiso irrestricto
+    if (usuario.id_rol === 1 || usuario.id_rol === 2) {
+      return { permitido: true, tipo: 'GestionDocenteDirecta' };
+    }
+    // Estudiante (rol 3) solo su propia excusa y dentro de 15 minutos (900 seg)
+    if (usuario.id_rol === 3) {
+      if (usuario.id !== excusa.id_estudiante) {
+        return { permitido: false, razon: 'No puede anular excusa de otro estudiante' };
+      }
+      if (segundosTranscurridos <= 900) {
+        return { permitido: true, tipo: 'CorreccionInmediataEstudiante' };
+      } else {
+        return { permitido: false, razon: 'Tiempo expirado; debe solicitar anulación a un docente' };
+      }
+    }
+    return { permitido: false, razon: 'Rol no autorizado' };
+  }
+
+  const excusaParaAnular = { id: 10, id_estudiante: 4, es_anulada: 0 };
+  assert(puedeAnular({ id: 4, id_rol: 3 }, excusaParaAnular, 300).permitido === true,
+    'Estudiante PUEDE anular su excusa dentro de los primeros 15 minutos (5 min transcurridos)');
+  assert(puedeAnular({ id: 4, id_rol: 3 }, excusaParaAnular, 1200).permitido === false,
+    'Estudiante NO PUEDE anular directamente tras 15 minutos (20 min transcurridos); debe solicitar');
+  assert(puedeAnular({ id: 2, id_rol: 2 }, excusaParaAnular, 7200).permitido === true,
+    'Docente (Rol 2) PUEDE anular directamente en cualquier momento (2 horas transcurridas)');
+  assert(puedeAnular({ id: 1, id_rol: 1 }, excusaParaAnular, 86400).permitido === true,
+    'Coordinador (Rol 1) PUEDE anular directamente en cualquier momento (24 horas transcurridas)');
+
+  // PRUEBA 9: Regla de Carga Múltiple de Anexos y Límite de Peso Conjunto (Máx 5 archivos y 30 MB)
+  console.log('\n9. Verificando Regla de Anexos Múltiples y Límite Conjunto (30 MB / 5 Archivos):');
+  function validarSubidaAnexos(archivos, maxFiles = 5, maxTotalBytes = 30 * 1024 * 1024) {
+    if (!archivos || archivos.length === 0) return { valido: true, totalBytes: 0, cantidad: 0 };
+    if (archivos.length > maxFiles) {
+      return { valido: false, error: `Excede el máximo de ${maxFiles} archivos permitidos` };
+    }
+    const totalBytes = archivos.reduce((acc, f) => acc + (f.size || 0), 0);
+    if (totalBytes > maxTotalBytes) {
+      return { valido: false, error: 'Excede el límite conjunto de 30 MB' };
+    }
+    return { valido: true, totalBytes, cantidad: archivos.length };
+  }
+
+  const loteValido = [
+    { name: 'incapacidad.pdf', size: 5 * 1024 * 1024 }, // 5 MB
+    { name: 'orden_medica.jpg', size: 8 * 1024 * 1024 }, // 8 MB
+    { name: 'alta_hospitalaria.pdf', size: 10 * 1024 * 1024 } // 10 MB (Total 23 MB, 3 archivos)
+  ];
+  const lotesSobrecupoCantidad = [
+    { name: '1.pdf', size: 1024 },
+    { name: '2.pdf', size: 1024 },
+    { name: '3.pdf', size: 1024 },
+    { name: '4.pdf', size: 1024 },
+    { name: '5.pdf', size: 1024 },
+    { name: '6.pdf', size: 1024 } // 6 archivos (> 5)
+  ];
+  const loteExcesoPeso = [
+    { name: 'scan_pesado_1.pdf', size: 20 * 1024 * 1024 }, // 20 MB
+    { name: 'scan_pesado_2.pdf', size: 15 * 1024 * 1024 }  // 15 MB (Total 35 MB > 30 MB)
+  ];
+
+  assert(validarSubidaAnexos(loteValido).valido === true,
+    'Debe aceptar lote de 3 archivos con 23 MB en conjunto (dentro del límite de 30 MB y 5 archivos)');
+  assert(validarSubidaAnexos(lotesSobrecupoCantidad).valido === false,
+    'Debe rechazar lote que exceda la cantidad máxima de 5 archivos');
+  assert(validarSubidaAnexos(loteExcesoPeso).valido === false,
+    'Debe rechazar lote cuyo peso acumulado (35 MB) supere el límite conjunto de 30 MB');
+
+  // PRUEBA 10: Regla de Confidencialidad en Cierre de Excusas Indefinidas (HU-09 en Cierre)
+  console.log('\n10. Verificando Confidencialidad en Soportes de Cierre de Excusas Indefinidas:');
+  function checkDownloadCierrePermission(anexoCierre, usuario) {
+    if (!anexoCierre.es_restringido) return true;
+    // Solo Coordinador (rol 1) y estudiante autor
+    if (usuario.id_rol === 1) return true;
+    if (usuario.id === anexoCierre.id_estudiante) return true;
+    return false;
+  }
+
+  const anexoCierreConfidencial = { id: 25, id_estudiante: 4, es_restringido: 1 };
+  assert(checkDownloadCierrePermission(anexoCierreConfidencial, userCoordinador) === true,
+    'Coordinador (Rol 1) DEBE poder descargar soporte de cierre confidencial');
+  assert(checkDownloadCierrePermission(anexoCierreConfidencial, userDocente) === false,
+    'Docente (Rol 2) NO DEBE poder descargar soporte de cierre confidencial (HU-09)');
+  assert(checkDownloadCierrePermission(anexoCierreConfidencial, userEstudianteDuenio) === true,
+    'Estudiante autor DEBE poder descargar su propio soporte de cierre confidencial');
+
   console.log('\n====================================================');
   console.log(` RESULTADOS: ${passed} pasadas, ${failed} falladas.`);
   console.log('====================================================\n');

@@ -1,8 +1,23 @@
-import { Lock, CheckCircle2, Clock } from 'lucide-react';
+import { Lock, CheckCircle2, Clock, Ban } from 'lucide-react';
 import { calcularEstadoExcusa } from '../../utils/estados';
 
-export function ModalidadBadge({ esIndefinida, fechaRetorno, fechaHasta, showModalidadHint = false }) {
-  const info = calcularEstadoExcusa({ esIndefinida, fechaRetorno, fechaHasta });
+export function ModalidadBadge({ esIndefinida, fechaRetorno, fechaHasta, esAnulada, motivoAnulacion, showModalidadHint = false }) {
+  const info = calcularEstadoExcusa({ esIndefinida, fechaRetorno, fechaHasta, esAnulada, motivoAnulacion });
+
+  if (info.estado === 'Anulada') {
+    return (
+      <span
+        title={info.descripcion}
+        className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md text-[11px] sm:text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 line-through decoration-rose-400 shrink-0"
+      >
+        <Ban className="w-3 h-3 text-rose-500 shrink-0 no-underline" />
+        <span>Anulada</span>
+        {showModalidadHint && (
+          <span className="text-[10px] font-normal text-rose-400">({info.modalidad})</span>
+        )}
+      </span>
+    );
+  }
 
   if (info.estado === 'Vigente') {
     return (

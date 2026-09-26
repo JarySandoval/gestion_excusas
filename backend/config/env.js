@@ -28,6 +28,8 @@ export const env = {
   },
   upload: {
     dir: path.resolve(__dirname, '..', process.env.UPLOAD_DIR || 'uploads/anexos'),
-    maxFileSize: parseInt(process.env.MAX_FILE_SIZE_MB || '10', 10) * 1024 * 1024
+    maxFileSize: parseInt(process.env.MAX_FILE_SIZE_MB || '30', 10) * 1024 * 1024,
+    maxTotalSize: parseInt(process.env.MAX_TOTAL_UPLOAD_SIZE_MB || '30', 10) * 1024 * 1024,
+    maxFilesCount: parseInt(process.env.MAX_FILES_COUNT || '5', 10)
   }
 };

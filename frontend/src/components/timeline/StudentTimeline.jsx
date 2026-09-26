@@ -108,7 +108,8 @@ export default function StudentTimeline({
                           esIndefinida={Boolean(item.es_indefinida)}
                           fechaRetorno={item.fecha_retorno}
                           fechaHasta={item.fecha_hasta}
-                          fechaDesde={item.fecha_desde}
+                          esAnulada={Boolean(item.es_anulada)}
+                          motivoAnulacion={item.motivo_anulacion}
                         />
                       </div>
                       <div className="flex items-center gap-2 text-xs text-slate-500">

@@ -16,9 +16,16 @@ Aplicación web integral para la radicación, gestión, seguimiento y trazabilid
 3. **Roles y Estados de Cuenta:**
    - Roles (`rol`): `1: Coordinador`, `2: Docente`, `3: Estudiante`.
    - Estados (`estado`): `1: Activo`, `2: Bloqueado`. Las cuentas bloqueadas no pueden iniciar sesión (**HU-01**).
-4. **Protección y Confidencialidad de Anexos:**
+4. **Protección, Confidencialidad y Soporte Multi-Archivo (HU-03 y HU-09):**
    - Los archivos adjuntos se guardan en un directorio privado fuera del webroot (`uploads/anexos/`) con renombrado a hash criptográfico (`nombre_tecnico`) (**HU-03**).
-   - Si un anexo se radica con la bandera `es_restringido = true` (**HU-09**), únicamente el **Coordinador** (`rol = 1`) y el estudiante autor pueden descargarlo. En la vista de los **Docentes** se muestra un aviso explícito de confidencialidad y se bloquea la descarga.
+   - Se admite la carga de **hasta 5 archivos por operación** con un **límite conjunto de 30 MB acumulados**, tanto en la radicación inicial de la inasistencia como en el cierre formal de excusas indefinidas.
+   - Si los anexos se marcan con la bandera `es_restringido = true` (**HU-09**, disponible en radicación y en cierre), únicamente el **Coordinador** (`rol = 1`) y el estudiante autor pueden descargarlos. En la vista de los **Docentes** se muestra un aviso explícito de confidencialidad médica e institucional y se bloquea la descarga.
+5. **Control de Solapamiento de Excusas:**
+   - Se impide que un mismo estudiante radique excusas que colisionen o se pisen en fechas con excusas previamente registradas. Si existe solapamiento, el sistema rechaza la solicitud indicando el radicado y período en conflicto.
+6. **Estado "Anulada" e Inmutabilidad de Auditoría:**
+   - Ningún registro se borra físicamente. Al corregir errores de radicación, una excusa pasa a estado **Anulada**, liberando el calendario escolar para permitir nuevas radicaciones y excluyéndose de las estadísticas de inasistencia activa.
+   - **Estudiantes:** Cuentan con una ventana de **15 minutos** posterior a la radicación para anular directamente errores de dedo. Tras 15 minutos, el registro se congela y deben utilizar la opción **Solicitar Anulación / Reportar Error**.
+   - **Docentes y Coordinadores:** Pueden anular directamente cualquier excusa en cualquier momento especificando el motivo, el cual queda sellado en la bitácora de seguimiento institucional (`G1-seguimiento`).
 
 ---
 
@@ -142,3 +149,7 @@ Verifica:
 - Control RBAC en descarga de anexos restringidos (HU-09).
 - Restricción de exportación CSV exclusiva para Coordinación (HU-07).
 - Regla de cierre formal de excusas indefinidas con fecha de retorno y soporte opcional (HU-08).
+- Detección y bloqueo de solapamiento de fechas entre excusas activas.
+- Regla institucional de anulación con ventana de 15 minutos para estudiantes y acceso directo docente/coordinador.
+- Validación de carga múltiple de anexos con tope conjunto de 30 MB y máximo 5 archivos por operación.
+- Protección de reserva médica y confidencialidad en soportes de cierre formal de excusas indefinidas.

@@ -1,5 +1,7 @@
 /**
  * Cálculo centralizado de los estados de excusas escolares:
+ * - Anulada: Excusa dejada sin efecto formalmente (por error de radicación u orden docente).
+ *            Libera el calendario y no cuenta en las estadísticas de faltas justificadas activas.
  * - Vigente: En curso actualmente.
  *   * Definida: dentro del rango de fechas (fecha_hasta >= hoy).
  *   * Indefinida sin retorno: aún no se ha registrado la fecha de retorno.
@@ -7,11 +9,23 @@
  * - Expirada: Excusa definida cuyo período concluyó por calendario (fecha_hasta < hoy).
  * - Terminada: Excusa indefinida formalmente cerrada cuya fecha de retorno ya se cumplió o pasó (retorno <= hoy).
  */
-export function calcularEstadoExcusa({ esIndefinida, fechaRetorno, fechaHasta }) {
+export function calcularEstadoExcusa({ esIndefinida, fechaRetorno, fechaHasta, esAnulada, motivoAnulacion }) {
+  const indef = Boolean(esIndefinida);
+
+  // Caso 0: Excusa Anulada (máxima precedencia)
+  if (esAnulada) {
+    return {
+      estado: 'Anulada',
+      subtexto: 'Anulada',
+      tipo: 'anulada',
+      modalidad: indef ? 'Indefinida' : 'Definida',
+      descripcion: motivoAnulacion ? `Excusa escolar anulada: ${motivoAnulacion}` : 'Excusa escolar formalmente anulada'
+    };
+  }
+
   const d = new Date();
   const hoyStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-  const indef = Boolean(esIndefinida);
   const retornoStr = fechaRetorno ? String(fechaRetorno).slice(0, 10) : null;
   const hastaStr = fechaHasta ? String(fechaHasta).slice(0, 10) : null;
 

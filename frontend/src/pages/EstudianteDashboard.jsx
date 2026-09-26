@@ -27,22 +27,29 @@ export default function EstudianteDashboard() {
   const vigentes = excusas.filter(e => calcularEstadoExcusa({
     esIndefinida: e.es_indefinida,
     fechaRetorno: e.fecha_retorno,
-    fechaHasta: e.fecha_hasta
+    fechaHasta: e.fecha_hasta,
+    esAnulada: e.es_anulada,
+    motivoAnulacion: e.motivo_anulacion
   }).estado === 'Vigente');
 
   const expiradas = excusas.filter(e => calcularEstadoExcusa({
     esIndefinida: e.es_indefinida,
     fechaRetorno: e.fecha_retorno,
-    fechaHasta: e.fecha_hasta
+    fechaHasta: e.fecha_hasta,
+    esAnulada: e.es_anulada,
+    motivoAnulacion: e.motivo_anulacion
   }).estado === 'Expirada');
 
   const terminadas = excusas.filter(e => calcularEstadoExcusa({
     esIndefinida: e.es_indefinida,
     fechaRetorno: e.fecha_retorno,
-    fechaHasta: e.fecha_hasta
+    fechaHasta: e.fecha_hasta,
+    esAnulada: e.es_anulada,
+    motivoAnulacion: e.motivo_anulacion
   }).estado === 'Terminada');
 
-  const abiertas = excusas.filter(e => Boolean(e.es_indefinida) && !e.fecha_retorno);
+  const anuladas = excusas.filter(e => Boolean(e.es_anulada));
+  const abiertas = excusas.filter(e => Boolean(e.es_indefinida) && !e.fecha_retorno && !e.es_anulada);
 
   const handleVerDetalle = (excusa) => {
     setExcusaSeleccionada(excusa);
@@ -108,7 +115,14 @@ export default function EstudianteDashboard() {
             Total Radicadas
           </span>
           <div className="flex items-center justify-between mt-1.5 sm:mt-2">
-            <span className="text-xl sm:text-2xl font-black text-slate-900">{total}</span>
+            <div>
+              <span className="text-xl sm:text-2xl font-black text-slate-900">{total}</span>
+              {anuladas.length > 0 && (
+                <span className="text-[10px] text-rose-600 font-medium block">
+                  {anuladas.length} anulada{anuladas.length > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
               <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>

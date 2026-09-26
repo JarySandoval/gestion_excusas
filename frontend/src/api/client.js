@@ -100,6 +100,24 @@ export const api = {
     return handleResponse(res);
   },
 
+  anularExcusa: async (id, motivo) => {
+    const res = await fetch(`${BASE_URL}/excusas/${id}/anular`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ motivo })
+    });
+    return handleResponse(res);
+  },
+
+  solicitarAnulacion: async (id, motivo) => {
+    const res = await fetch(`${BASE_URL}/excusas/${id}/solicitar-anulacion`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ motivo })
+    });
+    return handleResponse(res);
+  },
+
   getTimelineEstudiante: async (idEstudiante) => {
     const res = await fetch(`${BASE_URL}/excusas/timeline/${idEstudiante}`, {
       headers: getHeaders()

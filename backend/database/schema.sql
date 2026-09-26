@@ -82,9 +82,14 @@ CREATE TABLE IF NOT EXISTS `G1-excusa` (
     descripcion TEXT NOT NULL,
     datos_contacto VARCHAR(150) NOT NULL,
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    es_anulada TINYINT(1) NOT NULL DEFAULT 0,
+    motivo_anulacion TEXT NULL,
+    fecha_anulacion DATETIME NULL,
+    id_usuario_anulacion INT NULL,
     CONSTRAINT pk_G1_excusa PRIMARY KEY(id),
     CONSTRAINT uq_G1_excusa_radicado UNIQUE(radicado),
-    CONSTRAINT fk_G1_excusa_estudiante FOREIGN KEY(id_estudiante) REFERENCES usuario(id)
+    CONSTRAINT fk_G1_excusa_estudiante FOREIGN KEY(id_estudiante) REFERENCES usuario(id),
+    CONSTRAINT fk_G1_excusa_usuario_anulacion FOREIGN KEY(id_usuario_anulacion) REFERENCES usuario(id)
 );
 
 CREATE TABLE IF NOT EXISTS `G1-anexo` (

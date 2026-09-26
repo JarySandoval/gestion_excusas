@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { api } from '../../api/client';
 import Modal from '../common/Modal';
-import { Upload, AlertCircle, CheckCircle2, ShieldCheck, X } from 'lucide-react';
+import MultiFileUpload from '../common/MultiFileUpload';
+import { AlertCircle, CheckCircle2, ShieldCheck, Lock } from 'lucide-react';
 
 export default function ModalCierreIndefinida({
   isOpen,
@@ -10,7 +11,8 @@ export default function ModalCierreIndefinida({
   onCierreExitoso
 }) {
   const [fechaRetorno, setFechaRetorno] = useState(new Date().toISOString().slice(0, 10));
-  const [soporteAlta, setSoporteAlta] = useState(null);
+  const [archivosSoporte, setArchivosSoporte] = useState([]);
+  const [esRestringido, setEsRestringido] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -35,8 +37,11 @@ export default function ModalCierreIndefinida({
     try {
       const formData = new FormData();
       formData.append('fecha_retorno', fechaRetorno);
-      if (soporteAlta) {
-        formData.append('anexo', soporteAlta);
+      formData.append('es_restringido', esRestringido);
+      if (archivosSoporte && archivosSoporte.length > 0) {
+        archivosSoporte.forEach((f) => {
+          formData.append('anexos', f);
+        });
       }
 
       const res = await api.cerrarExcusaIndefinida(excusa.id, formData);
@@ -114,60 +119,45 @@ export default function ModalCierreIndefinida({
           </p>
         </div>
 
-        {/* Archivo Soporte de Alta (Opcional con botón en español) */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Soporte Médico de Alta / Certificado de Reincorporación (Opcional)
-          </label>
-          
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
-            <label
-              htmlFor="soporte-cierre-file"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 shadow-2xs"
-            >
-              <Upload className="w-4 h-4 text-amber-700" />
-              <span>Seleccionar archivo</span>
-            </label>
-            <input
-              id="soporte-cierre-file"
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  setSoporteAlta(e.target.files[0]);
-                }
-              }}
-              className="sr-only"
-            />
+        {/* Soporte Médico de Alta (Opcional, hasta 5 archivos y 30 MB) */}
+        <MultiFileUpload
+          files={archivosSoporte}
+          onChange={setArchivosSoporte}
+          maxFiles={5}
+          maxTotalSizeMB={30}
+          themeColor="amber"
+          title="Soporte Médico de Alta / Certificado de Reincorporación (Opcional)"
+          hint="Formatos admitidos: PDF, JPG, PNG, DOC, DOCX. Máximo 5 archivos y hasta 30 MB en conjunto."
+          inputId="soporte-cierre-file"
+        />
 
-            <div className="flex items-center gap-2 min-w-0">
-              {soporteAlta ? (
-                <div className="flex items-center gap-2 text-xs text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 max-w-full">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span className="font-semibold truncate">{soporteAlta.name}</span>
-                  <span className="text-slate-400 text-[11px] shrink-0">
-                    ({(soporteAlta.size / 1024).toFixed(1)} KB)
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setSoporteAlta(null)}
-                    className="text-slate-400 hover:text-rose-600 p-0.5 rounded cursor-pointer"
-                    title="Quitar archivo"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <span className="text-xs text-slate-400 italic">
-                  Ningún archivo seleccionado (opcional)
-                </span>
-              )}
+        {/* HU-09: Anexo Restringido / Confidencial */}
+        {archivosSoporte.length > 0 && (
+          <div className="p-3.5 bg-rose-50/70 border border-rose-200 rounded-xl space-y-1.5 text-xs">
+            <div className="flex items-start gap-2.5">
+              <input
+                type="checkbox"
+                id="cierre_es_restringido"
+                name="cierre_es_restringido"
+                checked={esRestringido}
+                onChange={(e) => setEsRestringido(e.target.checked)}
+                className="w-4 h-4 text-rose-600 rounded border-rose-300 focus:ring-rose-500 mt-0.5 cursor-pointer shrink-0"
+              />
+              <div>
+                <label
+                  htmlFor="cierre_es_restringido"
+                  className="font-bold text-rose-900 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Lock className="w-3.5 h-3.5 text-rose-700 shrink-0" />
+                  <span>Marcar estos anexos como Documentos Restringidos / Confidenciales</span>
+                </label>
+                <p className="text-[11px] text-rose-700 mt-0.5 leading-relaxed">
+                  Si activa esta opción, los archivos de soporte médico adjuntos solo podrán ser visualizados y descargados por la <strong>Coordinación Escolar</strong>. Los docentes verán una advertencia explícita de confidencialidad institucional y no tendrán acceso a la descarga.
+                </p>
+              </div>
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 mt-1">
-            Formatos permitidos: PDF, JPG, PNG, DOC, DOCX.
-          </p>
-        </div>
+        )}
 
         {/* Botones de acción */}
         <div className="pt-3 flex flex-col-reverse sm:flex-row justify-end gap-2 border-t border-slate-100">

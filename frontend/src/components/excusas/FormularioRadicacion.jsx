@@ -10,8 +10,7 @@ import {
   ShieldAlert,
   Send,
   CheckCircle2,
-  AlertTriangle,
-  Lock
+  AlertTriangle
 } from 'lucide-react';
 
 export default function FormularioRadicacion({ onExcusaRadicada }) {
@@ -92,9 +91,16 @@ export default function FormularioRadicacion({ onExcusaRadicada }) {
       data.append('es_restringido', formData.es_restringido);
 
       if (archivos && archivos.length > 0) {
-        archivos.forEach((f) => {
-          data.append('anexos', f);
+        const metadata = [];
+        archivos.forEach((item) => {
+          const fileObj = item.file || item;
+          data.append('anexos', fileObj);
+          metadata.push({
+            nombre: fileObj.name,
+            es_restringido: Boolean(item.esRestringido)
+          });
         });
+        data.append('anexos_metadata', JSON.stringify(metadata));
       }
 
       const res = await api.crearExcusa(data);
@@ -338,31 +344,6 @@ export default function FormularioRadicacion({ onExcusaRadicada }) {
           hint="Formatos permitidos: PDF, JPG, PNG, DOC, DOCX. Máximo 5 archivos y hasta 30 MB en conjunto."
           inputId="anexos-radicacion-files"
         />
-
-        {/* HU-09: Anexo Restringido */}
-        {archivos.length > 0 && (
-          <div className="p-3.5 bg-rose-50/70 border border-rose-200 rounded-xl space-y-2">
-            <div className="flex items-start gap-2.5">
-              <input
-                type="checkbox"
-                id="es_restringido"
-                name="es_restringido"
-                checked={formData.es_restringido}
-                onChange={handleChange}
-                className="w-4 h-4 text-rose-600 rounded border-rose-300 focus:ring-rose-500 mt-0.5 cursor-pointer shrink-0"
-              />
-              <div>
-                <label htmlFor="es_restringido" className="text-xs font-bold text-rose-900 flex items-center gap-1.5 cursor-pointer">
-                  <Lock className="w-3.5 h-3.5 text-rose-700 shrink-0" />
-                  <span>Marcar estos anexos como Documentos Restringidos / Confidenciales</span>
-                </label>
-                <p className="text-[11px] text-rose-700 mt-0.5 leading-relaxed">
-                  Si activa esta opción, los documentos adjuntos solo podrán ser visualizados y descargados por la <strong>Coordinación Escolar</strong>. Los docentes verán una advertencia explícita de confidencialidad y no tendrán acceso a la descarga.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Botón de Enviar */}

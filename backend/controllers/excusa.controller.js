@@ -116,14 +116,31 @@ export async function crearExcusa(req, res, next) {
 
     // HU-03 y HU-09: Si se adjuntaron anexos (admite hasta 5 archivos y máx 30 MB en conjunto)
     const archivos = req.archivosAdjuntos || (Array.isArray(req.files) ? req.files : (req.file ? [req.file] : []));
-    const isRestringido = (es_restringido === 'true' || es_restringido === true || es_restringido === 1);
+    let anexosMetadata = [];
+    if (req.body.anexos_metadata) {
+      try {
+        anexosMetadata = typeof req.body.anexos_metadata === 'string'
+          ? JSON.parse(req.body.anexos_metadata)
+          : req.body.anexos_metadata;
+      } catch (_) {}
+    }
+    const globalRestringido = (es_restringido === 'true' || es_restringido === true || es_restringido === 1);
     const anexosRegistrados = [];
 
     if (archivos && archivos.length > 0) {
       const [nextAnexoIdRows] = await connection.query('SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM `G1-anexo`');
       let currentAnexoId = Number(nextAnexoIdRows[0].nextId);
 
-      for (const archivo of archivos) {
+      for (let i = 0; i < archivos.length; i++) {
+        const archivo = archivos[i];
+        // Comprobar confidencialidad individual por nombre o por índice
+        const metaItem = Array.isArray(anexosMetadata)
+          ? (anexosMetadata.find(m => m.nombre === archivo.originalname) || anexosMetadata[i])
+          : null;
+        const archivoEsRestringido = metaItem && metaItem.es_restringido !== undefined
+          ? Boolean(metaItem.es_restringido)
+          : globalRestringido;
+
         await connection.query(
           `INSERT INTO \`G1-anexo\`
            (id, id_excusa, nombre_original, nombre_tecnico, ruta_archivo, es_restringido, fecha_subida)
@@ -134,14 +151,14 @@ export async function crearExcusa(req, res, next) {
             archivo.originalname,
             archivo.filename,
             archivo.path,
-            isRestringido ? 1 : 0
+            archivoEsRestringido ? 1 : 0
           ]
         );
 
         anexosRegistrados.push({
           id: currentAnexoId,
           nombre_original: archivo.originalname,
-          es_restringido: isRestringido
+          es_restringido: archivoEsRestringido
         });
 
         currentAnexoId++;
@@ -579,7 +596,15 @@ export async function cerrarExcusaIndefinida(req, res, next) {
 
     // 2. Insertar soporte(s) médico(s) en G1-anexo si fueron adjuntados (opcional, máx 5 archivos y 30 MB)
     const { es_restringido } = req.body;
-    const isRestringido = (es_restringido === 'true' || es_restringido === true || es_restringido === 1);
+    let anexosMetadata = [];
+    if (req.body.anexos_metadata) {
+      try {
+        anexosMetadata = typeof req.body.anexos_metadata === 'string'
+          ? JSON.parse(req.body.anexos_metadata)
+          : req.body.anexos_metadata;
+      } catch (_) {}
+    }
+    const globalRestringido = (es_restringido === 'true' || es_restringido === true || es_restringido === 1);
     const archivos = req.archivosAdjuntos || (Array.isArray(req.files) ? req.files : (req.file ? [req.file] : []));
     const anexosRegistrados = [];
 
@@ -587,7 +612,16 @@ export async function cerrarExcusaIndefinida(req, res, next) {
       const [nextAnexoIdRows] = await connection.query('SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM `G1-anexo`');
       let currentAnexoId = Number(nextAnexoIdRows[0].nextId);
 
-      for (const archivo of archivos) {
+      for (let i = 0; i < archivos.length; i++) {
+        const archivo = archivos[i];
+        // Comprobar confidencialidad individual por nombre o por índice
+        const metaItem = Array.isArray(anexosMetadata)
+          ? (anexosMetadata.find(m => m.nombre === archivo.originalname) || anexosMetadata[i])
+          : null;
+        const archivoEsRestringido = metaItem && metaItem.es_restringido !== undefined
+          ? Boolean(metaItem.es_restringido)
+          : globalRestringido;
+
         await connection.query(
           `INSERT INTO \`G1-anexo\`
            (id, id_excusa, nombre_original, nombre_tecnico, ruta_archivo, es_restringido, fecha_subida)
@@ -598,14 +632,14 @@ export async function cerrarExcusaIndefinida(req, res, next) {
             archivo.originalname,
             archivo.filename,
             archivo.path,
-            isRestringido ? 1 : 0
+            archivoEsRestringido ? 1 : 0
           ]
         );
 
         anexosRegistrados.push({
           id: currentAnexoId,
           nombre_original: archivo.originalname,
-          es_restringido: isRestringido
+          es_restringido: archivoEsRestringido
         });
 
         currentAnexoId++;

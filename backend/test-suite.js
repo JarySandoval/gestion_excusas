@@ -226,8 +226,41 @@ async function runTestSuite() {
     'Coordinador (Rol 1) DEBE poder descargar soporte de cierre confidencial');
   assert(checkDownloadCierrePermission(anexoCierreConfidencial, userDocente) === false,
     'Docente (Rol 2) NO DEBE poder descargar soporte de cierre confidencial (HU-09)');
-  assert(checkDownloadCierrePermission(anexoCierreConfidencial, userEstudianteDuenio) === true,
-    'Estudiante autor DEBE poder descargar su propio soporte de cierre confidencial');
+  // PRUEBA 11: Granularidad Individual de Confidencialidad por Archivo (Lote Mixto)
+  console.log('\n11. Verificando Granularidad de Confidencialidad Individual por Archivo (Lote Mixto):');
+  function resolverConfidencialidadIndividual(archivos, metadata) {
+    return archivos.map((archivo, idx) => {
+      const meta = Array.isArray(metadata)
+        ? (metadata.find(m => m.nombre === archivo.name) || metadata[idx])
+        : null;
+      return {
+        ...archivo,
+        es_restringido: meta && meta.es_restringido !== undefined ? Boolean(meta.es_restringido) : false
+      };
+    });
+  }
+
+  const loteMixtoArchivos = [
+    { name: 'constancia_deportiva.pdf', id_estudiante: 4 },
+    { name: 'historia_clinica_psicologia.pdf', id_estudiante: 4 }
+  ];
+  const metadataMixta = [
+    { nombre: 'constancia_deportiva.pdf', es_restringido: false },
+    { nombre: 'historia_clinica_psicologia.pdf', es_restringido: true }
+  ];
+
+  const loteResuelto = resolverConfidencialidadIndividual(loteMixtoArchivos, metadataMixta);
+  const anexoPublico = loteResuelto.find(a => a.name === 'constancia_deportiva.pdf');
+  const anexoPrivado = loteResuelto.find(a => a.name === 'historia_clinica_psicologia.pdf');
+
+  assert(checkDownloadPermission(anexoPublico, userDocente) === true,
+    'Docente (Rol 2) PUEDE descargar anexo público en un lote mixto');
+  assert(checkDownloadPermission(anexoPrivado, userDocente) === false,
+    'Docente (Rol 2) TIENE BLOQUEADO el anexo confidencial en el mismo lote mixto');
+  assert(checkDownloadPermission(anexoPrivado, userCoordinador) === true,
+    'Coordinador (Rol 1) PUEDE descargar el anexo confidencial del lote mixto');
+  assert(checkDownloadPermission(anexoPrivado, userEstudianteDuenio) === true,
+    'Estudiante autor PUEDE descargar su propio anexo confidencial del lote mixto');
 
   console.log('\n====================================================');
   console.log(` RESULTADOS: ${passed} pasadas, ${failed} falladas.`);

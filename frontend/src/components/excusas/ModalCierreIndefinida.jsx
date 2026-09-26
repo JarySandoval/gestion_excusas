@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { api } from '../../api/client';
 import Modal from '../common/Modal';
 import MultiFileUpload from '../common/MultiFileUpload';
-import { AlertCircle, CheckCircle2, ShieldCheck, Lock } from 'lucide-react';
+import { AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 export default function ModalCierreIndefinida({
   isOpen,
@@ -12,7 +12,6 @@ export default function ModalCierreIndefinida({
 }) {
   const [fechaRetorno, setFechaRetorno] = useState(new Date().toISOString().slice(0, 10));
   const [archivosSoporte, setArchivosSoporte] = useState([]);
-  const [esRestringido, setEsRestringido] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -37,11 +36,17 @@ export default function ModalCierreIndefinida({
     try {
       const formData = new FormData();
       formData.append('fecha_retorno', fechaRetorno);
-      formData.append('es_restringido', esRestringido);
       if (archivosSoporte && archivosSoporte.length > 0) {
-        archivosSoporte.forEach((f) => {
-          formData.append('anexos', f);
+        const metadata = [];
+        archivosSoporte.forEach((item) => {
+          const fileObj = item.file || item;
+          formData.append('anexos', fileObj);
+          metadata.push({
+            nombre: fileObj.name,
+            es_restringido: Boolean(item.esRestringido)
+          });
         });
+        formData.append('anexos_metadata', JSON.stringify(metadata));
       }
 
       const res = await api.cerrarExcusaIndefinida(excusa.id, formData);
@@ -130,34 +135,6 @@ export default function ModalCierreIndefinida({
           hint="Formatos admitidos: PDF, JPG, PNG, DOC, DOCX. Máximo 5 archivos y hasta 30 MB en conjunto."
           inputId="soporte-cierre-file"
         />
-
-        {/* HU-09: Anexo Restringido / Confidencial */}
-        {archivosSoporte.length > 0 && (
-          <div className="p-3.5 bg-rose-50/70 border border-rose-200 rounded-xl space-y-1.5 text-xs">
-            <div className="flex items-start gap-2.5">
-              <input
-                type="checkbox"
-                id="cierre_es_restringido"
-                name="cierre_es_restringido"
-                checked={esRestringido}
-                onChange={(e) => setEsRestringido(e.target.checked)}
-                className="w-4 h-4 text-rose-600 rounded border-rose-300 focus:ring-rose-500 mt-0.5 cursor-pointer shrink-0"
-              />
-              <div>
-                <label
-                  htmlFor="cierre_es_restringido"
-                  className="font-bold text-rose-900 flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Lock className="w-3.5 h-3.5 text-rose-700 shrink-0" />
-                  <span>Marcar estos anexos como Documentos Restringidos / Confidenciales</span>
-                </label>
-                <p className="text-[11px] text-rose-700 mt-0.5 leading-relaxed">
-                  Si activa esta opción, los archivos de soporte médico adjuntos solo podrán ser visualizados y descargados por la <strong>Coordinación Escolar</strong>. Los docentes verán una advertencia explícita de confidencialidad institucional y no tendrán acceso a la descarga.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Botones de acción */}
         <div className="pt-3 flex flex-col-reverse sm:flex-row justify-end gap-2 border-t border-slate-100">

@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "IED La Victoria • Gestión de Excusas",
-  "theme": "prism",
+  "theme": "mint",
   "colors": {
     "primary": "#1e3a8a",
     "light": "#3b82f6",

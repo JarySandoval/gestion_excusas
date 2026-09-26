@@ -1,0 +1,86 @@
+---
+title: "Descarga de Anexos y Evidencias"
+description: "Endpoints seguros para la inspección de metadatos y descarga protegida de archivos probatorios bajo normativa HU-09."
+icon: "paperclip"
+---
+
+# Endpoints de Anexos (`/api/anexos`)
+
+La descarga de archivos probatorios y soportes médicos está estrictamente protegida por el backend para evitar accesos indebidos o fugas de historias clínicas escolares (**HU-09**).
+
+---
+
+## 1. Descarga Segura de Anexo
+
+<api-endpoint method="GET" endpoint="/api/anexos/:id/descargar" />
+
+Transmite el archivo físico almacenado en el servidor hacia el cliente mediante streaming seguro (`res.download`), preservando su nombre original.
+
+### Encabezados Requeridos
+```http
+Authorization: Bearer <TOKEN_JWT>
+```
+
+### Parámetros de Ruta (`Path Params`)
+
+| Parámetro | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `id` | `number` | Identificador único del anexo en la tabla `G1-anexo`. |
+
+### Respuestas
+
+<Tabs>
+  <Tab title="200 OK (Descarga Exitosa)">
+    Cabeceras de streaming binario:
+    ```http
+    Content-Type: application/pdf
+    Content-Disposition: attachment; filename="Incapacidad_Medica_10Abr.pdf"
+    ```
+  </Tab>
+
+  <Tab title="403 Forbidden (Reserva Médica)">
+    Si un docente intenta descargar un anexo marcado como confidencial:
+    ```json
+    {
+      "success": false,
+      "es_restringido": true,
+      "message": "Documento confidencial: Este anexo contiene información sensible o reserva médica, accesible únicamente por la Coordinación escolar de la IED La Victoria (HU-09)."
+    }
+    ```
+  </Tab>
+
+  <Tab title="404 Not Found">
+    Si el anexo no existe en la base de datos o el archivo fue purgado del disco:
+    ```json
+    {
+      "success": false,
+      "message": "Archivo anexo no encontrado en el servidor."
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## 2. Metadatos de un Anexo
+
+<api-endpoint method="GET" endpoint="/api/anexos/:id/info" />
+
+Devuelve la información del anexo y calcula reactivamente si el usuario solicitante tiene autorización para descargarlo o si está sujeto a reserva médica institucional.
+
+### Respuesta de Ejemplo (200 OK)
+```json
+{
+  "success": true,
+  "anexo": {
+    "id": 14,
+    "id_excusa": 45,
+    "nombre_original": "epicrisis_cirugia.pdf",
+    "es_restringido": 1,
+    "fecha_subida": "2026-04-10T14:22:00.000Z",
+    "radicado": "EXC-2026-00045",
+    "id_estudiante": 5,
+    "puede_descargar": false
+  }
+}
+```

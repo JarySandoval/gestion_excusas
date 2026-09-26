@@ -1,0 +1,110 @@
+---
+title: "Catálogos y Reportes CSV (HU-07)"
+description: "Endpoints para obtención de listas maestras institucionales y exportación consolidada de reportes en formato CSV con privilegios exclusivos."
+icon: "file-spreadsheet"
+---
+
+# Catálogos Institucionales y Reportes CSV
+
+---
+
+## 📚 1. Catálogos Maestros (`/api/catalogos`)
+
+Proporcionan las opciones estandarizadas utilizadas en los formularios de radicación y filtros de búsqueda:
+
+### Listar Cursos
+<api-endpoint method="GET" endpoint="/api/catalogos/cursos" />
+
+Retorna la lista de grados y grupos habilitados en la institución:
+```json
+{
+  "success": true,
+  "cursos": [
+    { "id": 1, "grado": "Grado 10-A" },
+    { "id": 2, "grado": "Grado 10-B" },
+    { "id": 3, "grado": "Grado 11-A" }
+  ]
+}
+```
+
+### Listar Motivos Estandarizados
+<api-endpoint method="GET" endpoint="/api/catalogos/motivos" />
+
+Retorna los motivos institucionales tipificados para inasistencia:
+```json
+{
+  "success": true,
+  "motivos": [
+    "Incapacidad Médica",
+    "Cita Médica / Odontológica",
+    "Calamidad Doméstica",
+    "Fuerza Mayor / Trámite Legal",
+    "Representación Institucional o Deportiva"
+  ]
+}
+```
+
+### Consultar Vigencia Escolar Activa
+<api-endpoint method="GET" endpoint="/api/catalogos/vigencia" />
+
+Retorna el año lectivo institucional en curso con sus fechas de inicio y finalización:
+```json
+{
+  "success": true,
+  "vigencia": {
+    "id": 1,
+    "fecha_inicio": "2026-01-15",
+    "fecha_fin": "2026-11-30",
+    "anio": 2026
+  }
+}
+```
+
+### Listar Estudiantes (Exclusivo Docentes y Coordinadores)
+<api-endpoint method="GET" endpoint="/api/catalogos/estudiantes" />
+
+Permite al personal docente seleccionar al estudiante titular cuando radican una novedad en su nombre:
+```http
+Authorization: Bearer <TOKEN_JWT>
+```
+
+---
+
+## 📊 2. Exportación Consolidada CSV (HU-07)
+
+<api-endpoint method="GET" endpoint="/api/reportes/excusas/csv" />
+
+Genera y descarga un archivo estructurado en formato **CSV con codificación UTF-8 BOM** para visualización y análisis estadístico en Microsoft Excel o herramientas de Business Intelligence.
+
+### Restricción de Seguridad Exclusiva
+En estricto apego a la historia de usuario **HU-07**, este servicio solo puede ser consumido por el **Coordinador Escolar** (`id_rol = 1`). Si un docente o estudiante lo solicita, el servidor rechaza la petición con **403 Forbidden**.
+
+### Parámetros de Filtro Opcionales (`Query Params`)
+Permite exportar subconjuntos de datos específicos:
+* `id_curso`: Filtra las excusas de un grado específico.
+* `fecha_desde` y `fecha_hasta`: Delimita el rango temporal de radicación.
+* `motivo`: Filtra por tipo de inasistencia.
+* `estado`: Filtra por estado (`Vigente`, `Expirada`, `Terminada`, `Anulada`).
+
+### Formato de Cabeceras en la Respuesta
+```http
+Content-Type: text/csv; charset=utf-8
+Content-Disposition: attachment; filename="reporte_excusas_2026-04-10.csv"
+```
+
+### Columnas Incluidas en el Archivo CSV
+1. `RADICADO` (ej. `EXC-2026-00045`)
+2. `IDENTIFICACIÓN DEL ESTUDIANTE`
+3. `ESTUDIANTE`
+4. `CURSO / GRADO`
+5. `FECHA DESDE`
+6. `FECHA HASTA`
+7. `MODALIDAD` (`Vigente`, `Expirada`, `Terminada`, `Anulada`)
+8. `FECHA RETORNO`
+9. `MOTIVO`
+10. `DESCRIPCIÓN`
+11. `DATOS DE CONTACTO ACUDIENTE`
+12. `FECHA RADICACIÓN`
+13. `TOTAL ANEXOS`
+14. `TOTAL SEGUIMIENTOS`
+15. `ESTADO AUDITORÍA`

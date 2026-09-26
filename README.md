@@ -136,6 +136,23 @@ Abra en su navegador `http://localhost:5173`.
 
 ---
 
+## 📖 Documentación Oficial con Mintlify
+
+El proyecto cuenta con un portal completo de documentación interactiva en la carpeta `docs/`, configurado bajo los estándares modernos de **Mintlify** (`docs.json`).
+
+Para visualizar y editar la documentación localmente:
+```bash
+# Instalar o ejecutar Mintlify CLI
+npx mintlify dev
+```
+La documentación abrirá automáticamente en `http://localhost:3000`.
+
+Para sincronizar con el portal en producción mediante **Git Sync**:
+1. Conectar el repositorio `JarySandoval/gestion_excusas` en el Dashboard de Mintlify.
+2. Definir el subdirectorio de documentación como `/docs`.
+
+---
+
 ## 🧪 Pruebas Automatizadas
 Para ejecutar la suite de pruebas unitarias y de reglas de negocio en el backend:
 ```bash

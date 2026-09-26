@@ -1,0 +1,94 @@
+---
+title: "Roles y Permisos (RBAC)"
+description: "Matriz de control de acceso basada en roles (RBAC) de la IED La Victoria, facultades institucionales y validación en middlewares."
+icon: "shield-halved"
+---
+
+# Control de Acceso Basado en Roles (RBAC)
+
+La **IED La Victoria** maneja una estructura de seguridad jerárquica estricta. El sistema reconoce tres roles institucionales en la tabla `rol`:
+
+1. **Coordinador** (`id_rol = 1`): Máxima autoridad institucional y de convivencia.
+2. **Docente** (`id_rol = 2`): Equipo pedagógico responsable de la verificación y seguimiento en aula.
+3. **Estudiante / Acudiente** (`id_rol = 3`): Usuarios titulares que radican y justifican inasistencias.
+
+---
+
+## 📊 Matriz de Facultades Institucionales
+
+| Operación / Funcionalidad | Estudiante (`3`) | Docente (`2`) | Coordinador (`1`) | HU / Regla Asociada |
+| :--- | :---: | :---: | :---: | :--- |
+| **Radicar excusa propia** | ✅ | ✅ *(en nombre de)* | ✅ *(en nombre de)* | HU-02 |
+| **Consultar historial propio** | ✅ | ❌ | ❌ | HU-05 |
+| **Consultar novedades del día (`CURDATE()`)** | ❌ | ✅ | ✅ | HU-04 |
+| **Búsqueda por grado, fecha y motivo** | ❌ | ✅ | ✅ | HU-04 |
+| **Línea de tiempo histórica de un estudiante** | ✅ *(propia)* | ✅ | ✅ | HU-05 |
+| **Cerrar formalmente excusa indefinida** | ✅ *(suya)* | ✅ | ✅ | HU-08 |
+| **Descargar anexos estándar** | ✅ | ✅ | ✅ | HU-03 |
+| **Descargar anexos confidenciales (HU-09)** | ✅ *(su anexo)* | 🚫 **Bloqueado** | ✅ | HU-09 (Reserva médica) |
+| **Registrar observación de seguimiento** | ❌ | ✅ | ✅ | HU-06 |
+| **Editar observación propia (< 15 min)** | ❌ | ✅ *(suya)* | ✅ *(suya)* | Regla 15 minutos |
+| **Eliminar observación de seguimiento** | ❌ | ✅ *(suya)* | ✅ *(cualquiera)* | Control de bitácora |
+| **Anular excusa directamente (< 15 min)** | ✅ *(suya)* | ✅ | ✅ | Deshacer error inicial |
+| **Anular excusa directamente (> 15 min)** | ❌ | ✅ | ✅ | Auditoría y control |
+| **Solicitar anulación formal (> 15 min)** | ✅ *(suya)* | ❌ *(no aplica)* | ❌ *(no aplica)* | Notificación docente |
+| **Exportación de reportes masivos CSV** | ❌ | ❌ | ✅ | HU-07 (Exclusivo) |
+
+---
+
+## 🛡️ Implementación de Middlewares en el Backend
+
+El backend en Express implementa middlewares reutilizables para garantizar el cumplimiento de la matriz RBAC:
+
+### 1. `verifyToken`
+Verifica la validez y vigencia de la firma JWT en la cabecera `Authorization: Bearer <token>`. Inyecta el payload del usuario en `req.user`.
+
+```javascript
+// backend/middlewares/auth.middleware.js
+export function verifyToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ success: false, message: 'Token de acceso no proporcionado.' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ success: false, message: 'Token inválido o expirado.' });
+  }
+}
+```
+
+### 2. `requireStaff`
+Restringe el endpoint exclusivamente a personal institucional (Coordinadores con rol `1` o Docentes con rol `2`).
+
+```javascript
+// backend/middlewares/rbac.middleware.js
+export function requireStaff(req, res, next) {
+  if (req.user && (Number(req.user.id_rol) === 1 || Number(req.user.id_rol) === 2)) {
+    return next();
+  }
+  return res.status(403).json({
+    success: false,
+    message: 'Acceso denegado: Esta acción requiere privilegios de personal docente o coordinador.'
+  });
+}
+```
+
+### 3. `requireCoordinador`
+Garantiza el cumplimiento estricto de la **HU-07**, reservando la generación y descarga masiva de reportes en formato CSV únicamente al Coordinador institucional (`id_rol = 1`).
+
+```javascript
+// backend/middlewares/rbac.middleware.js
+export function requireCoordinador(req, res, next) {
+  if (req.user && Number(req.user.id_rol) === 1) {
+    return next();
+  }
+  return res.status(403).json({
+    success: false,
+    message: 'Acceso restringido: Solo la Coordinación de la institución puede exportar reportes consolidados (HU-07).'
+  });
+}
+```

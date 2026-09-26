@@ -1,0 +1,114 @@
+---
+title: "Instalación y Configuración"
+description: "Paso a paso para desplegar y ejecutar el entorno de desarrollo y producción del módulo de excusas."
+icon: "terminal"
+---
+
+# Instalación y Puesta en Marcha
+
+Esta guía detalla los pasos para clonar, configurar y ejecutar localmente tanto el backend como el frontend de la plataforma.
+
+## 🛠️ Requisitos Previos
+
+* **Node.js:** Versión 18 o superior (v24 recomendado).
+* **MySQL:** Servidor MySQL 8.0 o compatible activo con la base de datos `bdiedlavictoria`.
+* **npm:** Gestor de paquetes de Node.
+
+---
+
+## 🚀 Paso a Paso de Instalación
+
+<Steps>
+  <Step title="1. Clonar el Repositorio">
+    Clona el proyecto en tu máquina local:
+    ```bash
+    git clone https://github.com/JarySandoval/gestion_excusas.git
+    cd gestion_excusas
+    ```
+  </Step>
+
+  <Step title="2. Configuración de Base de Datos y Variables de Entorno">
+    En la carpeta `backend/`, crea o ajusta tu archivo `.env`:
+
+    ```env backend/.env
+    PORT=4000
+    NODE_ENV=development
+
+    # Conexión MySQL
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_USER=root
+    DB_PASSWORD=tu_contraseña
+    DB_NAME=bdiedlavictoria
+
+    # JWT Auth
+    JWT_SECRET=ied_la_victoria_super_secret_jwt_key_2026_secure
+    JWT_EXPIRES_IN=24h
+
+    # Almacenamiento de Anexos
+    UPLOAD_DIR=uploads/anexos
+    MAX_FILE_SIZE_MB=30
+    MAX_TOTAL_UPLOAD_SIZE_MB=30
+    MAX_FILES_COUNT=5
+    ```
+  </Step>
+
+  <Step title="3. Instalar Dependencias del Backend">
+    ```bash
+    cd backend
+    npm install
+    ```
+  </Step>
+
+  <Step title="4. Inicializar y Poblar la Base de Datos">
+    Si deseas cargar el esquema institucional DDL y los datos de prueba oficiales:
+    ```bash
+    npm run seed
+    ```
+    <Note>
+      Este comando ejecuta las migraciones DDL de `schema.sql` y crea las cuentas institucionales preconfiguradas con contraseñas hasheadas en `bcryptjs`.
+    </Note>
+  </Step>
+
+  <Step title="5. Iniciar Servidor Backend">
+    Inicia el servidor en modo de desarrollo:
+    ```bash
+    npm run dev
+    ```
+    El API quedará escuchando en `http://localhost:4000`. Puedes verificar el estado en `http://localhost:4000/api/health`.
+  </Step>
+
+  <Step title="6. Instalar e Iniciar el Frontend">
+    En una nueva pestaña de terminal, entra a la carpeta `frontend/`:
+    ```bash
+    cd frontend
+    npm install
+    npm run dev
+    ```
+    Abre tu navegador en `http://localhost:5173`.
+  </Step>
+</Steps>
+
+---
+
+## 🧪 Ejecución de Pruebas Automatizadas
+
+El sistema cuenta con una suite integral de validación de reglas de negocio institucionales:
+
+```bash
+cd backend
+node test-suite.js
+```
+
+### Reglas verificadas por la suite:
+1. Convención de credenciales de usuario institucional (`[inicial][apellido][número]`).
+2. Cifrado de contraseñas y autenticación con `bcryptjs`.
+3. Claims y expiración de tokens JWT.
+4. Control de acceso RBAC en descarga de anexos confidenciales (**HU-09**).
+5. Exclusividad de exportación CSV para Coordinación (**HU-07**).
+6. Validación de cierre formal de excusas indefinidas (**HU-08**).
+7. Prevención y detección matemática de solapamiento de fechas.
+8. Regla de anulación institucional y ventana de 15 minutos para estudiantes.
+9. Validación de carga multi-archivo con límite acumulado de 30 MB y máximo 5 archivos.
+10. Protección de reserva médica en soportes de cierre de excusas indefinidas.
+11. Granularidad individual de confidencialidad en lotes mixtos de anexos.

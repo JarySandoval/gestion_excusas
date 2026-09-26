@@ -1,0 +1,182 @@
+---
+title: "Gestión de Excusas"
+description: "Endpoints REST para radicación, consulta diaria, filtros avanzados, línea de tiempo, cierre formal y anulación de excusas."
+icon: "file-signature"
+---
+
+# Endpoints de Excusas (`/api/excusas`)
+
+Todos los endpoints descritos requieren autenticación institucional mediante cabecera HTTP:
+```http
+Authorization: Bearer <TOKEN_JWT>
+```
+
+---
+
+## 1. Radicar Nueva Excusa
+
+<api-endpoint method="POST" endpoint="/api/excusas" />
+
+Radica formalmente una inasistencia escolar en la institución (**HU-02**). Valida automáticamente la regla de no-solapamiento de fechas y admite hasta 5 archivos probatorios (máx 30 MB en conjunto).
+
+### Formato de Solicitud
+`multipart/form-data`
+
+### Parámetros del Formulario
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| :--- | :--- | :---: | :--- |
+| `fecha_desde` | `date` (`YYYY-MM-DD`) | **Sí** | Fecha de inicio de la inasistencia. |
+| `fecha_hasta` | `date` (`YYYY-MM-DD`) | Condicional | Obligatorio si no es indefinida. Debe ser $\ge$ `fecha_desde`. |
+| `es_indefinida`| `boolean` / `string` | No | `"true"` si no se puede estimar fecha de alta; omite `fecha_hasta`. |
+| `motivo` | `string` | **Sí** | Causa de la inasistencia (Médica, Calamidad doméstica, etc.). |
+| `descripcion` | `string` | **Sí** | Explicación detallada de la novedad. |
+| `datos_contacto`| `string` | **Sí** | Teléfono o correo de contacto del acudiente. |
+| `id_estudiante`| `number` | Condicional | Requerido si radica un docente o coordinador; ignorado para estudiantes. |
+| `anexos` | `files[]` | No | Hasta 5 archivos físicos (`PDF`, `JPG`, `PNG`, etc.). Máx 30 MB combinados. |
+| `anexos_metadata`| `string` (JSON) | No | Array JSON con confidencialidad individual (`[{"nombre": "ep.pdf", "es_restringido": true}]`). |
+
+### Respuestas
+
+<Tabs>
+  <Tab title="201 Created">
+    ```json
+    {
+      "success": true,
+      "message": "Excusa radicada exitosamente bajo el código institucional EXC-2026-00045.",
+      "excusa": {
+        "id": 45,
+        "radicado": "EXC-2026-00045",
+        "id_estudiante": 5,
+        "fecha_desde": "2026-04-10",
+        "fecha_hasta": "2026-04-12",
+        "es_indefinida": 0,
+        "motivo": "Incapacidad Médica",
+        "anexos_guardados": 2
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="400 Bad Request (Solapamiento)">
+    ```json
+    {
+      "success": false,
+      "message": "El estudiante ya tiene una excusa activa que cubre este período de tiempo (Radicado: EXC-2026-00012, Período: 2026-04-09 al 2026-04-15)...",
+      "conflicto": {
+        "id": 12,
+        "radicado": "EXC-2026-00012",
+        "periodo": "2026-04-09 al 2026-04-15"
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## 2. Listar Excusas con Filtros
+
+<api-endpoint method="GET" endpoint="/api/excusas" />
+
+Permite a docentes y coordinadores consultar las novedades del colegio (**HU-04**). Si no se envían parámetros, precarga reactivamente las **novedades del día actual** (`CURDATE()`).
+
+### Parámetros de Consulta (`Query Params`)
+
+| Parámetro | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `fecha` | `date` | Filtra excusas vigentes en una fecha específica (`YYYY-MM-DD`). |
+| `id_curso` | `number` | Filtra por identificador de curso/grado académico. |
+| `motivo` | `string` | Filtra por motivo de inasistencia. |
+| `id_estudiante`| `number` | Filtra por estudiante específico. |
+| `estado` | `string` | Filtra por estado de negocio (`Vigente`, `Expirada`, `Terminada`, `Anulada`). |
+
+### Respuesta de Ejemplo (200 OK)
+```json
+{
+  "success": true,
+  "total": 1,
+  "excusas": [
+    {
+      "id": 45,
+      "radicado": "EXC-2026-00045",
+      "estudiante_nombre": "Juan Hernández",
+      "estudiante_identificacion": "1023948571",
+      "curso_grado": "Grado 10-A",
+      "fecha_desde": "2026-04-10",
+      "fecha_hasta": "2026-04-12",
+      "es_indefinida": 0,
+      "modalidad_calculada": "Vigente",
+      "motivo": "Incapacidad Médica",
+      "total_anexos": 1,
+      "total_seguimientos": 0,
+      "es_anulada": 0
+    }
+  ]
+}
+```
+
+---
+
+## 3. Detalle de Excusa
+
+<api-endpoint method="GET" endpoint="/api/excusas/:id" />
+
+Obtiene toda la información circunstanciada de una excusa, incluyendo lista de anexos y la bitácora cronológica de seguimiento institucional.
+
+---
+
+## 4. Línea de Tiempo del Estudiante
+
+<api-endpoint method="GET" endpoint="/api/excusas/timeline/:id_estudiante" />
+
+Recupera el historial completo acumulado de inasistencias de un alumno a través de los diferentes años lectivos y grados cursados (**HU-05**).
+
+---
+
+## 5. Cierre Formal de Excusa Indefinida
+
+<api-endpoint method="PATCH" endpoint="/api/excusas/:id/cerrar" />
+
+Registra formalmente el retorno a clases de una inasistencia médica o indefinida (**HU-08**).
+
+### Formato de Solicitud
+`multipart/form-data`
+
+### Parámetros
+* `fecha_retorno` (`string`, obligatorio): Fecha oficial de regreso a clases (`YYYY-MM-DD`). Debe ser $\ge$ `fecha_desde`.
+* `anexos` (`files[]`, opcional): Hasta 5 archivos de alta médica (máx 30 MB).
+* `anexos_metadata` (`string` JSON, opcional): Definición de confidencialidad por archivo.
+
+---
+
+## 6. Anulación Formal de Excusa
+
+<api-endpoint method="POST" endpoint="/api/excusas/:id/anular" />
+
+Invalida formalmente una excusa escolar, liberando el período en el calendario escolar y registrando el evento en auditoría inmutable.
+
+### Cuerpo de la Petición (`Body` JSON)
+```json
+{
+  "motivo": "Error de fecha digitada por el acudiente; se radicó para marzo en vez de abril."
+}
+```
+
+### Reglas de Autorización
+* **Docentes y Coordinadores:** Pueden anular en cualquier momento.
+* **Estudiantes:** Pueden anular directamente **únicamente en los primeros 15 minutos** tras su creación.
+
+---
+
+## 7. Solicitar Anulación Formal (Estudiante)
+
+<api-endpoint method="POST" endpoint="/api/excusas/:id/solicitar-anulacion" />
+
+Permite al estudiante notificar formalmente a los docentes que una excusa contiene un error, cuando ya han transcurrido los 15 minutos de la ventana autónoma. Inserta automáticamente una notificación en `G1-seguimiento`.
+
+```json
+{
+  "motivo": "Por favor anular este radicado; equivoqué la fecha final de incapacidad."
+}
+```

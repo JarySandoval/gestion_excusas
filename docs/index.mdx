@@ -1,0 +1,77 @@
+---
+title: "Inicio y Bienvenida"
+description: "Documentación oficial del Módulo de Radicación y Seguimiento de Excusas Escolares de la Institución Educativa Distrital (IED) La Victoria."
+icon: "house"
+---
+
+# Módulo de Radicación y Seguimiento de Excusas Escolares
+### Institución Educativa Distrital (IED) La Victoria • Vigencia 2026
+
+Bienvenido al portal oficial de documentación técnica y operativa del **Módulo de Excusas Escolares** de la **IED La Victoria**. Este sistema integral permite la radicación, trazabilidad, seguimiento pedagógico y gestión de inasistencias escolares, conectándose a la base de datos institucional MySQL `bdiedlavictoria`.
+
+<CardGroup cols={2}>
+  <Card title="Primeros Pasos" icon="play" href="/instalacion">
+    Aprende a clonar el repositorio, configurar el entorno local y arrancar el backend y frontend.
+  </Card>
+  <Card title="Reglas Institucionales" icon="gavel" href="/reglas/solapamiento">
+    Conoce las reglas de negocio: solapamiento, inmutabilidad, anulación y confidencialidad médica.
+  </Card>
+  <Card title="Arquitectura y Base de Datos" icon="database" href="/arquitectura/base-datos">
+    Estructura relacional, tablas maestras y tablas transaccionales con prefijo `G1-`.
+  </Card>
+  <Card title="Referencia de API REST" icon="code" href="/api-reference/excusas">
+    Catálogo completo de endpoints para autenticación, gestión de excusas, anexos y auditoría.
+  </Card>
+</CardGroup>
+
+---
+
+## 🏛️ Principios Fundamentales del Sistema
+
+<AccordionGroup>
+  <Accordion title="1. Sin aprobaciones ni rechazos arbitrarios" icon="scale-balanced">
+    La excusa escolar **nace formalmente radicada** en el momento en que el estudiante o acudiente la registra en el sistema. Los docentes no aprueban ni rechazan; realizan observaciones de seguimiento pedagógico y registran acuerdos académicos.
+  </Accordion>
+
+  <Accordion title="2. Prevención activa de solapamiento de fechas" icon="calendar-xmark">
+    El sistema valida automáticamente que un estudiante no radique inasistencias que colisionen con períodos de excusas ya existentes en su calendario escolar (sean definidas o indefinidas).
+  </Accordion>
+
+  <Accordion title="3. Inmutabilidad y Estado 'Anulada' para correcciones" icon="clock-rotate-left">
+    Ningún registro de excusa se borra físicamente. Si un estudiante se equivoca de fecha o motivo, la excusa se marca como **Anulada**, liberando el calendario escolar y preservando la trazabilidad completa en la bitácora de auditoría.
+  </Accordion>
+
+  <Accordion title="4. Reserva médica y confidencialidad individual (HU-09)" icon="user-shield">
+    Los documentos adjuntos sensibles pueden marcarse como **Confidenciales** de forma individual. La **Coordinación Escolar** y el estudiante autor son los únicos autorizados para visualizarlos o descargarlos, mientras que los docentes reciben una alerta preventiva institucional.
+  </Accordion>
+
+  <Accordion title="5. Soporte multi-archivo con tope conjunto de 30 MB" icon="file-zipper">
+    Se permite adjuntar hasta 5 archivos por operación tanto en la radicación inicial como en el cierre formal de excusas indefinidas, con un control de peso conjunto de 30 MB y un medidor visual en tiempo real.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## 🧭 Mapa de Navegación por Perfiles
+
+<Tabs>
+  <Tab title="👨‍🎓 Estudiantes y Acudientes">
+    * **Radicación de Excusas:** Formulario intuitivo con soporte para inasistencias de fechas definidas o indefinidas.
+    * **Carga de Evidencias:** Selector múltiple de hasta 5 archivos (máx 30 MB en conjunto) con selector de confidencialidad por documento.
+    * **Ventana de 15 Minutos:** Posibilidad de anular directamente errores de digitación en los primeros 15 minutos; posterior a ello, opción de solicitar anulación formal a los docentes.
+    * **Línea de Tiempo:** Historial acumulado cronológico de inasistencias a través de las diferentes vigencias y grados cursados.
+  </Tab>
+
+  <Tab title="👩‍🏫 Docentes">
+    * **Consulta Diaria:** Panel con precarga inmediata de las novedades activas del día (`CURDATE()`).
+    * **Filtros Avanzados:** Búsqueda reactiva por curso/grado, rango de fechas, motivo y estudiante.
+    * **Seguimiento Pedagógico:** Registro de actuaciones y acuerdos en la bitácora escolar (con edición durante los primeros 15 minutos o eliminación posterior).
+    * **Anulación Justificada:** Potestad de anular directamente excusas erróneas con registro de motivo institucional.
+  </Tab>
+
+  <Tab title="👔 Coordinación Escolar">
+    * **Control Institucional Total:** Gestión de todos los registros académicos y administrativos.
+    * **Custodia de Documentos Sensibles:** Acceso y descarga exclusiva de anexos marcados como confidenciales o de reserva médica (**HU-09**).
+    * **Exportación Consolidada CSV:** Descarga exclusiva de reportes para análisis institucional y archivo escolar con codificación UTF-8 BOM (**HU-07**).
+  </Tab>
+</Tabs>

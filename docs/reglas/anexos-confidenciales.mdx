@@ -1,0 +1,73 @@
+---
+title: "Anexos y Reserva Médica (HU-09)"
+description: "Custodia de documentos probatorios sensibles, Habeas Data institucional, soporte multi-archivo de 30 MB y control de acceso individual."
+icon: "user-shield"
+---
+
+# Confidencialidad y Reserva Médica de Anexos (HU-09)
+
+En cumplimiento de la **Ley Estatutaria 1581 de 2012** (Régimen General de Protección de Datos Personales en Colombia) y de la jurisprudencia constitucional sobre la especial protección del derecho a la intimidad de niños, niñas y adolescentes, la **IED La Victoria** garantiza el tratamiento reservado de la información médica escolar.
+
+La historia clínica, las fórmulas farmacológicas y los diagnósticos psicológicos o psiquiátricos constituyen **datos sensibles**. El sistema implementa la historia de usuario **HU-09** para asegurar que ningún docente o tercero no autorizado tenga acceso no justificado a dichos documentos.
+
+---
+
+## 🎛️ Características del Gestor de Archivos
+
+Tanto en la **Radicación de Excusas** como en el **Cierre Formal de Excusas Indefinidas**, los usuarios disponen del componente `MultiFileUpload`:
+
+<CardGroup cols={2}>
+  <Card title="Hasta 5 Archivos por Operación" icon="files">
+    Permite adjuntar simultáneamente incapacidades, fórmulas y exámenes clínicos sin necesidad de fusionar archivos externamente.
+  </Card>
+  <Card title="Tope Conjunto de 30 MB" icon="weight-scale">
+    El sistema calcula el peso acumulado en tiempo real. Un medidor visual alerta el porcentaje de cuota utilizado y bloquea cargas superiores a 30 MB.
+  </Card>
+  <Card title="Privacidad Individual por Anexo" icon="lock">
+    Cada archivo cargado cuenta con su propio interruptor (*toggle*) para marcarlo como confidencial de forma independiente.
+  </Card>
+  <Card title="Formatos Validados" icon="file-pdf">
+    Admite documentos estándar: `PDF`, `PNG`, `JPG`, `JPEG` y `WEBP`.
+  </Card>
+</CardGroup>
+
+---
+
+## 🔒 Matriz de Acceso y Descarga de Anexos
+
+El endpoint de descarga (`GET /api/anexos/:id/descargar`) valida las credenciales y el rol del usuario antes de transmitir cualquier byte del archivo:
+
+```mermaid
+flowchart TD
+    Req["Petición: GET /api/anexos/:id/descargar"]
+    CheckToken["Validar JWT institucional"]
+    QueryAnexo["Consultar anexo en G1-anexo"]
+    Restringido{"¿es_restringido == 1?"}
+    
+    CheckRol{"¿Rol == 1 (Coordinador) O Usuario == Estudiante Titular?"}
+    Stream["HTTP 200 OK<br/>Streaming seguro (res.download)"]
+    Deny["HTTP 403 Forbidden<br/>Aviso preventivo HU-09"]
+
+    Req --> CheckToken --> QueryAnexo --> Restringido
+    Restringido -->|NO (Público)| Stream
+    Restringido -->|SÍ (Confidencial)| CheckRol
+    CheckRol -->|SÍ| Stream
+    CheckRol -->|NO (Docente u otro)| Deny
+```
+
+| Tipo de Anexo | Estudiante Titular | Docente (`rol = 2`) | Coordinación (`rol = 1`) |
+| :--- | :---: | :---: | :---: |
+| **Anexo Estándar** (`es_restringido = 0`) | ✅ Permite descarga | ✅ Permite descarga | ✅ Permite descarga |
+| **Anexo Confidencial** (`es_restringido = 1`) | ✅ Permite descarga | 🚫 **Bloqueado (403 Forbidden)** | ✅ Permite descarga (Custodia) |
+
+<Warning>
+**Aviso Institucional a Docentes:** Cuando un docente intenta descargar un anexo marcado con reserva médica, el sistema no descarga el archivo y muestra una ventana emergente institucional recordando que el documento está bajo custodia exclusiva de la Coordinación de Convivencia para proteger la intimidad del estudiante.
+</Warning>
+
+---
+
+## 🛡️ Almacenamiento Seguro y Sanitización en Disco
+
+1. **Sin URLs Estáticas Públicas:** Los archivos **no** están servidos en un directorio estático web accesible directamente por URL (como `/uploads/archivo.pdf`). Toda descarga pasa obligatoriamente por el middleware de autenticación y autorización en Express.
+2. **Nombres Técnicos Aleatorios:** Multer asigna nombres técnicos únicos con marca de tiempo y sufijos seguros para evitar colisiones y sobreescrituras accidentales en `backend/uploads/`.
+3. **Descarga con Nombre Humano:** Al autorizarse la descarga, Express utiliza `res.download(ruta_archivo, nombre_original)`, restituyendo el nombre del archivo legible que el usuario cargó.

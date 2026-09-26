@@ -1,0 +1,126 @@
+---
+title: "Seguimiento y Bitácora Pedagógica"
+description: "Endpoints para el registro de observaciones pedagógicas, acuerdos escolares, edición en ventana de 15 minutos y eliminación controlada."
+icon: "list-check"
+---
+
+# Endpoints de Seguimiento Pedagógico
+
+El módulo de seguimiento implementa la historia de usuario **HU-06**, permitiendo a docentes y coordinadores registrar observaciones formativas, acuerdos de entrega de actividades y compromisos académicos.
+
+---
+
+## 1. Registrar Observación Pedagógica
+
+<api-endpoint method="POST" endpoint="/api/excusas/:id/seguimiento" />
+
+Registra una nueva actuación o acuerdo pedagógico en la bitácora de la excusa.
+
+### Encabezados
+```http
+Authorization: Bearer <TOKEN_JWT>
+Content-Type: application/json
+```
+
+### Privilegios
+Requiere rol de **Docente** (`id_rol = 2`) o **Coordinador** (`id_rol = 1`).
+
+### Cuerpo de la Petición
+```json
+{
+  "observacion": "Se concertó con el estudiante y acudiente la entrega de las guías de matemáticas el próximo viernes 17 de abril."
+}
+```
+
+### Respuestas
+<Tabs>
+  <Tab title="201 Created">
+    ```json
+    {
+      "success": true,
+      "message": "Observación de seguimiento registrada exitosamente.",
+      "seguimiento": {
+        "id": 8,
+        "id_excusa": 45,
+        "id_usuario": 2,
+        "observacion": "Se concertó con el estudiante...",
+        "fecha_hora": "2026-04-10T15:30:00.000Z",
+        "segundos_transcurridos": 0,
+        "autor_nombre": "Carlos",
+        "autor_apellido": "Rodríguez",
+        "autor_rol": "Docente"
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="403 Forbidden">
+    Si un estudiante intenta registrar una observación pedagógica.
+  </Tab>
+</Tabs>
+
+---
+
+## 2. Listar Observaciones de una Excusa
+
+<api-endpoint method="GET" endpoint="/api/excusas/:id/seguimiento" />
+
+Obtiene cronológicamente todas las observaciones, acuerdos y eventos auditados (`[ANULACIÓN FORMAL]`, `[SOLICITUD DE ANULACIÓN]`) asociados a una excusa.
+
+---
+
+## 3. Editar Observación (Ventana de 15 Minutos)
+
+<api-endpoint method="PUT" endpoint="/api/seguimientos/:id" />
+
+Permite al autor docente corregir errores tipográficos en su observación **únicamente durante los primeros 15 minutos (900 segundos)** tras su creación.
+
+### Cuerpo de la Petición
+```json
+{
+  "observacion": "Texto corregido: Se concertó entrega de talleres 1 y 2 para el viernes 17."
+}
+```
+
+### Respuestas
+
+<Tabs>
+  <Tab title="200 OK (Edición Válida)">
+    ```json
+    {
+      "success": true,
+      "message": "Observación de seguimiento actualizada exitosamente.",
+      "seguimiento": {
+        "id": 8,
+        "observacion": "Texto corregido..."
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="400 Bad Request (Tiempo Expirado)">
+    Si transcurrieron más de 15 minutos:
+    ```json
+    {
+      "success": false,
+      "tiempoExpirado": true,
+      "message": "El tiempo límite para editar esta observación (15 minutos) ha expirado. Si ya no es válida o necesita corregirla, debe eliminarla."
+    }
+    ```
+  </Tab>
+
+  <Tab title="403 Forbidden">
+    Si otro docente intenta editar una observación que no fue redactada por él.
+  </Tab>
+</Tabs>
+
+---
+
+## 4. Eliminar Observación
+
+<api-endpoint method="DELETE" endpoint="/api/seguimientos/:id" />
+
+Elimina formalmente una observación de la bitácora institucional.
+
+### Reglas de Autorización
+* **Autor Original:** Puede eliminar su propia observación en cualquier momento.
+* **Coordinación Escolar (`rol = 1`):** Puede eliminar cualquier observación en ejercicio de sus funciones directivas de supervisión.

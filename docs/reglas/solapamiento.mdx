@@ -1,0 +1,108 @@
+---
+title: "Control de Solapamiento"
+description: "Regla institucional que impide la duplicación o colisión temporal de inasistencias en el calendario de un estudiante."
+icon: "calendar-xmark"
+---
+
+# Regla de Prevención de Solapamiento
+
+Para mantener la integridad del calendario académico institucional y evitar registros contradictorios, la IED La Victoria exige que **ningún estudiante tenga dos o más excusas activas que colisionen o se pisen en las mismas fechas**.
+
+---
+
+## 📐 Fundamento Lógico y Matemático
+
+Sean dos intervalos temporales de inasistencia:
+* **Período Existente:** $[D_1, H_1]$, donde $H_1 = \text{COALESCE}(\text{fecha\_retorno}, \text{fecha\_hasta}, \text{'9999-12-31'})$.
+* **Nuevo Período Radicado:** $[D_2, H_2]$, donde $H_2 = \text{fecha\_hasta}$ si es definida o $\text{'9999-12-31'}$ si es indefinida.
+
+Existe **colisión o solapamiento** si y solo si:
+
+$$D_2 \le H_1 \quad \land \quad D_1 \le H_2$$
+
+```mermaid
+flowchart TD
+    Radicar["Solicitud de Radicación (POST /api/excusas)"]
+    Check["¿Existe otra excusa activa (es_anulada = 0) donde:<br/>D_nuevo <= Fin_existente AND Inicio_existente <= Fin_nuevo?"]
+    Conflict["Rechazar con HTTP 400 Bad Request<br/>Retornar radicado y período en conflicto"]
+    Success["Validación Exitosa<br/>Generar Radicado Único y Guardar"]
+
+    Radicar --> Check
+    Check -->|SÍ (Colisión)| Conflict
+    Check -->|NO (Libre)| Success
+```
+
+---
+
+## 🔍 Consulta SQL Ejecutada en el Backend
+
+La validación se realiza dentro de la transacción de base de datos antes de generar el radicado:
+
+```sql
+SELECT id, radicado, fecha_desde, fecha_hasta, es_indefinida, fecha_retorno
+FROM `G1-excusa`
+WHERE id_estudiante = ?
+  AND es_anulada = 0
+  AND ? <= COALESCE(fecha_retorno, fecha_hasta, '9999-12-31')
+  AND fecha_desde <= ?
+LIMIT 1;
+```
+
+Donde los parámetros vinculados son:
+1. `id_estudiante`: Identificador único del estudiante.
+2. `fecha_desde`: Fecha inicial de la nueva excusa ($D_2$).
+3. `finPeriodoNuevo`: Fecha final de la nueva excusa ($H_2$) o `'9999-12-31'` si se marca como indefinida.
+
+---
+
+## 📋 Escenarios Evaluados
+
+<AccordionGroup>
+  <Accordion title="1. Solapamiento Parcial o Fronterizo" icon="arrows-split-up-and-left">
+    * **Existente:** Del `2026-03-10` al `2026-03-15`.
+    * **Intento:** Del `2026-03-14` al `2026-03-20`.
+    * **Resultado:** ❌ **Rechazado.** Existe colisión en los días 14 y 15 de marzo.
+  </Accordion>
+
+  <Accordion title="2. Solapamiento Total o Inclusión" icon="maximize">
+    * **Existente:** Del `2026-03-01` al `2026-03-30`.
+    * **Intento:** Del `2026-03-10` al `2026-03-12`.
+    * **Resultado:** ❌ **Rechazado.** El período ya está plenamente cubierto por una excusa activa.
+  </Accordion>
+
+  <Accordion title="3. Excusa Indefinida Abierta" icon="infinity">
+    * **Existente:** Indefinida iniciada el `2026-04-01` sin fecha de retorno asignada.
+    * **Intento:** Cualquier excusa con inicio $\ge$ `2026-04-01`.
+    * **Resultado:** ❌ **Rechazado.** Mientras la excusa indefinida permanezca abierta, el calendario del estudiante está bloqueado hacia el futuro.
+  </Accordion>
+
+  <Accordion title="4. Excusa Indefinida Formalmente Cerrada" icon="calendar-check">
+    * **Existente:** Indefinida iniciada el `2026-04-01`, pero formalmente cerrada con fecha de retorno `2026-04-10`.
+    * **Intento:** Nueva excusa del `2026-04-15` al `2026-04-20`.
+    * **Resultado:** ✅ **Aceptado.** Al registrarse el retorno formal, el intervalo delimitado pasa a ser $[2026\text{-}04\text{-}01, 2026\text{-}04\text{-}10]$, dejando libre a partir del 11 de abril.
+  </Accordion>
+
+  <Accordion title="5. Liberación por Estado 'Anulada'" icon="trash-can-arrow-up">
+    * **Existente:** Excusa errónea del `2026-05-01` al `2026-05-05` marcada con `es_anulada = 1`.
+    * **Intento:** Nueva excusa corregida del `2026-05-01` al `2026-05-08`.
+    * **Resultado:** ✅ **Aceptado.** La excusa anulada ya no bloquea el calendario escolar, permitiendo al estudiante subsanar el error inmediatamente.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## 🚫 Respuesta del Sistema ante Colisión
+
+Si se detecta un solapamiento, el servidor responde inmediatamente con código **400 Bad Request** y detalle informativo para el usuario:
+
+```json
+{
+  "success": false,
+  "message": "El estudiante ya tiene una excusa activa que cubre este período de tiempo (Radicado: EXC-2026-00012, Período: 2026-03-10 al 2026-03-15). Si se cometió un error en las fechas, la excusa anterior debe ser anulada previamente para liberar el calendario escolar.",
+  "conflicto": {
+    "id": 12,
+    "radicado": "EXC-2026-00012",
+    "periodo": "2026-03-10 al 2026-03-15"
+  }
+}
+```

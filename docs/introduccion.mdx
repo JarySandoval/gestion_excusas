@@ -1,0 +1,45 @@
+---
+title: "Introducción y Alcance"
+description: "Contexto institucional, objetivos pedagógicos y catálogo de Historias de Usuario satisfechas en la IED La Victoria."
+icon: "book-open"
+---
+
+# Introducción y Alcance Institucional
+
+El **Módulo de Radicación y Seguimiento de Excusas Escolares** fue diseñado para la **Institución Educativa Distrital (IED) La Victoria** con el propósito de erradicar la pérdida de información en papel, agilizar la comunicación docente-familia y brindar seguridad jurídica tanto al plantel como a los acudientes.
+
+## 🎯 Objetivos del Sistema
+
+1. **Digitalizar y Unificar la Radicación:** Disponer de un canal formal 24/7 donde estudiantes y acudientes puedan justificar inasistencias sin requerir desplazamientos físicos a la sede escolar.
+2. **Garantizar Trazabilidad Pedagógica:** Registrar las actuaciones de los docentes (entrega de talleres, reprogramación de evaluaciones, remisiones a orientación) en una bitácora única e inmutable.
+3. **Proteger la Privacidad Médica:** Asegurar que los diagnósticos y recetas clínicas sensibles permanezcan bajo custodia de la Coordinación Escolar sin exposición indebida ante terceros.
+4. **Optimizar la Toma de Decisiones:** Brindar a los directivos estadísticas en tiempo real y exportaciones consolidadas para identificar patrones de ausentismo escolar.
+
+---
+
+## 📋 Historias de Usuario Satisfechas (HU-01 a HU-09)
+
+El sistema satisface integralmente las 9 Historias de Usuario requeridas por la institución:
+
+| Historia | Título | Descripción de la Solución Técnica |
+| :---: | :--- | :--- |
+| **HU-01** | **Autenticación Institucional** | Inicio de sesión con JSON Web Tokens (JWT) y verificación reactiva de cuentas activas (`estado = 1`) o bloqueadas (`estado = 2`). |
+| **HU-02** | **Radicación de Excusas** | Formulario para radicar ausencias definidas o indefinidas, motivo institucional, descripción de los hechos, contacto de acudientes y generación de radicado único `RAD-YYYY-XXXXX`. |
+| **HU-03** | **Almacenamiento Seguro de Anexos** | Guardado de archivos fuera del webroot público (`uploads/anexos/`) con renombrado mediante hash criptográfico y streaming validado por token. |
+| **HU-04** | **Consulta Diaria y Filtros Avanzados** | Panel administrativo que carga por defecto las novedades activas del día (`CURDATE()`), con filtros reactivos por curso, estudiante, rango de fechas y motivo. |
+| **HU-05** | **Línea de Tiempo del Estudiante** | Componente interactivo `StudentTimeline` que agrupa el historial acumulado de inasistencias a través de las diferentes vigencias académicas y grados cursados. |
+| **HU-06** | **Seguimiento Institucional** | Bitácora de actuaciones docentes en `` `G1-seguimiento` ``. Las observaciones son editables por su autor durante los primeros 15 minutos; posterior a ese lapso, pueden ser eliminadas. |
+| **HU-07** | **Exportación CSV** | Descarga de reporte en formato Excel/CSV según los filtros activos, habilitada y visible **únicamente para `id_rol = 1` (Coordinador)** con codificación UTF-8 BOM. |
+| **HU-08** | **Cierre de Excusas Indefinidas** | Módulo para listar excusas abiertas (`es_indefinida = 1 AND fecha_retorno IS NULL`), fijar fecha de retorno real a clases y adjuntar soporte médico opcional. |
+| **HU-09** | **Anexos Restringidos y Confidenciales** | Control estricto de confidencialidad médica con descarga reservada para Coordinación y estudiante autor, desplegando un aviso preventivo a los Docentes. |
+
+---
+
+## 💡 Terminología Oficial de Estados
+
+Para facilitar la comprensión entre directivos, docentes y acudientes, el sistema emplea la siguiente terminología en la columna **Modalidad / Estado**:
+
+* **🟢 Vigente:** Excusa en curso actualmente. Aplica a excusas definidas dentro de su rango de fechas, o excusas indefinidas sin fecha de retorno (o con retorno fijado a futuro).
+* **⚪ Expirada:** Excusa de período definido cuya fecha de fin ya transcurrió en el calendario escolar.
+* **🔵 Terminada:** Excusa indefinida formalmente cerrada cuya fecha de reincorporación a clases ya se cumplió o pasó.
+* **🔴 Anulada:** Excusa invalidada formalmente por error en las fechas o duplicidad. Libera de inmediato el calendario y se excluye de las métricas de faltas activas.

@@ -1,0 +1,46 @@
+---
+title: "Credenciales y Autenticación"
+description: "Convención institucional de nombres de usuario, política de contraseñas y cuentas de prueba preconfiguradas."
+icon: "key"
+---
+
+# Credenciales de Acceso Institucional
+
+En la **IED La Victoria**, el acceso a la plataforma se encuentra unificado bajo directrices institucionales de identidad digital.
+
+## 🪪 Convención de Nombres de Usuario
+
+Los nombres de usuario (`usuario`) se generan automáticamente a partir del nombre y apellido de la persona siguiendo la fórmula:
+
+$$\text{usuario} = [\text{inicial primer nombre}] + [\text{primer apellido en minúsculas y sin tildes}] + [\text{consecutivo numérico}]$$
+
+### Ejemplos:
+* **Juan Camilo Pérez Castro** $\rightarrow$ `jperez1`
+* **Carlos Andrés Gómez Niño** $\rightarrow$ `cgomez1`
+* **María Elena Rodríguez Vargas** $\rightarrow$ `mrodriguez1`
+* Un segundo Juan Pérez matriculado en la institución $\rightarrow$ `jperez2`
+
+---
+
+## 🔒 Política de Contraseñas
+
+* **Contraseña por defecto:** Número de documento de identidad del usuario (Cédula de Ciudadanía o Tarjeta de Identidad).
+* **Mecanismo de seguridad:** Almacenamiento con hash criptográfico unidireccional utilizando **`bcryptjs`** con un factor de costo (*salt rounds*) de 10. Nunca se almacenan contraseñas en texto plano.
+
+---
+
+## 👥 Cuentas Preconfiguradas para Pruebas
+
+El script seeder (`backend/database/seed.js`) inicializa las siguientes cuentas en la base de datos:
+
+| Rol | Nombre Completo | Usuario | Contraseña (Documento) | Rol / Privilegios Clave |
+| :--- | :--- | :--- | :--- | :--- |
+| **Coordinador** (`rol = 1`) | María Elena Rodríguez | `mrodriguez1` | `51987456` | Acceso irrestricto, descarga de anexos confidenciales (**HU-09**), exportación consolidada CSV (**HU-07**). |
+| **Docente** (`rol = 2`) | Carlos Andrés Gómez | `cgomez1` | `79654123` | Consulta diaria (**HU-04**), seguimiento pedagógico (**HU-06**), anulación con motivo. Bloqueo en anexos restringidos. |
+| **Estudiante** (`rol = 3`) | Juan Camilo Pérez | `jperez1` | `1012345678` | Radicación (**HU-02**), cierre de indefinidas (**HU-08**), ventana de 15 min de anulación, línea de tiempo personal. |
+| **Estudiante** (`rol = 3`) | Valentina Mendoza | `vmendoza1` | `1098765432` | Estudiante activo para pruebas de múltiples historiales en la misma vigencia. |
+| **Bloqueado** (`estado = 2`) | Diego Fernando López | `dlopez1` | `1034567890` | Verificación de rechazo por cuenta inactiva o sancionada (**HU-01**). |
+
+<Warning>
+  El usuario `dlopez1` posee `id_estado = 2` (Bloqueado). Si intenta iniciar sesión, el sistema rechazará la autenticación con el mensaje: *"Su cuenta institucional se encuentra bloqueada o inactiva. Comuníquese con la Coordinación escolar."*
+</Warning>

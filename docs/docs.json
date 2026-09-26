@@ -1,0 +1,66 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "IED La Victoria • Gestión de Excusas",
+  "theme": "prism",
+  "colors": {
+    "primary": "#1e3a8a",
+    "light": "#3b82f6",
+    "dark": "#1d4ed8"
+  },
+  "favicon": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/graduation-cap.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guía General",
+        "groups": [
+          {
+            "group": "Primeros Pasos",
+            "pages": [
+              "index",
+              "introduccion",
+              "instalacion",
+              "credenciales"
+            ]
+          },
+          {
+            "group": "Arquitectura y Modelo",
+            "pages": [
+              "arquitectura/sistema",
+              "arquitectura/base-datos",
+              "arquitectura/roles-permisos"
+            ]
+          },
+          {
+            "group": "Reglas Institucionales",
+            "pages": [
+              "reglas/solapamiento",
+              "reglas/anulacion-auditoria",
+              "reglas/excusas-indefinidas",
+              "reglas/anexos-confidenciales"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Referencia API",
+        "groups": [
+          {
+            "group": "Servicios REST",
+            "pages": [
+              "api-reference/autenticacion",
+              "api-reference/excusas",
+              "api-reference/anexos",
+              "api-reference/seguimientos",
+              "api-reference/catalogos-reportes"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/JarySandoval/gestion_excusas"
+    }
+  }
+}

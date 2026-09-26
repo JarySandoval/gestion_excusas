@@ -1,0 +1,125 @@
+---
+title: "Autenticación Institucional"
+description: "Endpoints para inicio de sesión, generación de token JWT institucional y consulta del perfil activo."
+icon: "key"
+---
+
+# Servicios de Autenticación (`/api/auth`)
+
+La autenticación en el sistema es sin estado (*stateless*), soportada mediante **JSON Web Tokens (JWT)**. Las contraseñas se encuentran resguardadas mediante funciones hash unidireccionales `bcryptjs`.
+
+---
+
+## Iniciar Sesión
+
+<api-endpoint method="POST" endpoint="/api/auth/login" />
+
+Permite a cualquier integrante de la comunidad educativa (estudiantes, acudientes, docentes o coordinadores) iniciar sesión con su identificador institucional.
+
+### Encabezados de la Petición
+```http
+Content-Type: application/json
+```
+
+### Cuerpo de la Petición (`Body`)
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :--- | :--- | :---: | :--- |
+| `usuario` | `string` | **Sí** | Usuario institucional (formato: `[inicial][apellido][número]`, ej. `jhernandez01`). |
+| `contrasena` | `string` | **Sí** | Contraseña de acceso a la plataforma. |
+
+#### Ejemplo de Solicitud
+```json
+{
+  "usuario": "jhernandez01",
+  "contrasena": "clave123"
+}
+```
+
+### Respuestas
+
+<Tabs>
+  <Tab title="200 OK (Éxito)">
+    Devuelve el token JWT institucional y el perfil público del usuario:
+    ```json
+    {
+      "success": true,
+      "message": "Autenticación exitosa",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "user": {
+        "id": 5,
+        "usuario": "jhernandez01",
+        "nombre": "Juan",
+        "apellido": "Hernández",
+        "email": "jhernandez01@iedlavictoria.edu.co",
+        "id_rol": 3,
+        "rol_nombre": "Estudiante",
+        "curso": "Grado 10-A"
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="400 Bad Request">
+    Si faltan credenciales requeridas:
+    ```json
+    {
+      "success": false,
+      "message": "Debe suministrar usuario y contraseña."
+    }
+    ```
+  </Tab>
+
+  <Tab title="401 Unauthorized">
+    Si el usuario no existe o la contraseña es errónea:
+    ```json
+    {
+      "success": false,
+      "message": "Credenciales inválidas o cuenta no activa en la institución."
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Consultar Perfil Activo
+
+<api-endpoint method="GET" endpoint="/api/auth/me" />
+
+Permite verificar la validez del token almacenado localmente y refrescar los datos del perfil activo en el cliente web.
+
+### Encabezados de la Petición
+```http
+Authorization: Bearer <TOKEN_JWT>
+```
+
+### Respuestas
+
+<Tabs>
+  <Tab title="200 OK (Sesión Válida)">
+    ```json
+    {
+      "success": true,
+      "user": {
+        "id": 2,
+        "usuario": "crodriguez01",
+        "nombre": "Carlos",
+        "apellido": "Rodríguez",
+        "email": "crodriguez01@iedlavictoria.edu.co",
+        "id_rol": 2,
+        "rol_nombre": "Docente"
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="401 Unauthorized (Token Expirado)">
+    ```json
+    {
+      "success": false,
+      "message": "Token inválido o expirado."
+    }
+    ```
+  </Tab>
+</Tabs>

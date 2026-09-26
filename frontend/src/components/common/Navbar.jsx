@@ -2,7 +2,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { School, LogOut, User, ShieldCheck, BookOpen, Menu, X } from 'lucide-react';
 
 export default function Navbar({ onToggleSidebar, isSidebarOpen }) {
-  const { user, logout, isCoordinador, isDocente, isEstudiante } = useAuth();
+  const { user, logout, isCoordinador, isDocente } = useAuth();
 
   const getRolBadge = (isCompact = false) => {
     if (isCoordinador) {

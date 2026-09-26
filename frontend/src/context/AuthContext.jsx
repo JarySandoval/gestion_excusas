@@ -1,13 +1,20 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../api/client';
-
-export const AuthContext = createContext(null);
+import { AuthContext } from './authContextInstance';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setToken(null);
+    setUser(null);
+    setError(null);
+  };
 
   useEffect(() => {
     async function initAuth() {
@@ -56,14 +63,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setToken(null);
-    setUser(null);
-    setError(null);
-  };
-
   const isCoordinador = user?.id_rol === 1;
   const isDocente = user?.id_rol === 2;
   const isStaff = user?.id_rol === 1 || user?.id_rol === 2;
@@ -84,12 +83,4 @@ export function AuthProvider({ children }) {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth debe ser utilizado dentro de un AuthProvider');
-  }
-  return context;
 }

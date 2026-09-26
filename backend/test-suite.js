@@ -92,14 +92,14 @@ async function runTestSuite() {
     if (!excusa.es_indefinida) return { valid: false, error: 'Solo excusas indefinidas requieren cierre formal' };
     if (!fechaRetorno) return { valid: false, error: 'Fecha de retorno obligatoria' };
     if (new Date(fechaRetorno) < new Date(excusa.fecha_desde)) return { valid: false, error: 'Fecha retorno anterior a fecha inicio' };
-    if (!archivoSoporte) return { valid: false, error: 'Soporte médico de alta obligatorio' };
-    return { valid: true };
+    // Soporte documental es ahora opcional (HU-08)
+    return { valid: true, tieneSoporte: Boolean(archivoSoporte) };
   }
 
   const excusaIndefinida = { id: 1, es_indefinida: true, fecha_desde: '2026-09-01' };
   assert(validateCierreIndefinida(excusaIndefinida, '2026-09-08', 'alta_medica.pdf').valid === true, 'Cierre con fecha válida y soporte médico es válido');
-  assert(validateCierreIndefinida(excusaIndefinida, '2026-09-08', null).valid === false, 'Cierre sin soporte médico de alta es rechazado (HU-08)');
-  assert(validateCierreIndefinida(excusaIndefinida, '2026-08-25', 'alta.pdf').valid === false, 'Fecha de retorno anterior a fecha_desde es rechazada');
+  assert(validateCierreIndefinida(excusaIndefinida, '2026-09-08', null).valid === true, 'Cierre con fecha válida y SIN soporte médico ahora es permitido (opcional)');
+  assert(validateCierreIndefinida(excusaIndefinida, '2026-08-25', null).valid === false, 'Fecha de retorno anterior a fecha_desde sigue siendo rechazada');
 
   console.log('\n====================================================');
   console.log(` RESULTADOS: ${passed} pasadas, ${failed} falladas.`);

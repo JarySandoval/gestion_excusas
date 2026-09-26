@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api } from '../../api/client';
 import Modal from '../common/Modal';
-import { Calendar, Upload, AlertCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Upload, AlertCircle, CheckCircle2, ShieldCheck, X } from 'lucide-react';
 
 export default function ModalCierreIndefinida({
   isOpen,
@@ -30,18 +30,14 @@ export default function ModalCierreIndefinida({
       return;
     }
 
-    // HU-08: Soporte médico obligatorio
-    if (!soporteAlta) {
-      setError('Es obligatorio adjuntar el soporte o certificado médico de alta para efectuar el cierre formal.');
-      return;
-    }
-
     setSubmitting(true);
 
     try {
       const formData = new FormData();
       formData.append('fecha_retorno', fechaRetorno);
-      formData.append('anexo', soporteAlta);
+      if (soporteAlta) {
+        formData.append('anexo', soporteAlta);
+      }
 
       const res = await api.cerrarExcusaIndefinida(excusa.id, formData);
 
@@ -83,11 +79,11 @@ export default function ModalCierreIndefinida({
           </div>
         </div>
 
-        {/* Regla Institucional */}
+        {/* Información Institucional */}
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5 text-xs text-amber-900">
-          <ShieldAlert className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+          <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
           <span>
-            <strong>Requisito institucional:</strong> El cierre de una inasistencia médica o indefinida requiere fijar la fecha real de reincorporación y adjuntar obligatoriamente el alta médica oficial.
+            <strong>Cierre formal:</strong> Para culminar la inasistencia indefinida, ingrese la fecha real en que el estudiante se reincorpora a clases. Adjuntar el soporte o alta médica es opcional.
           </span>
         </div>
 
@@ -118,28 +114,59 @@ export default function ModalCierreIndefinida({
           </p>
         </div>
 
-        {/* Archivo Soporte de Alta Obligatorio */}
+        {/* Archivo Soporte de Alta (Opcional con botón en español) */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Soporte Médico de Alta / Certificado de Reincorporación (Obligatorio) *
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            Soporte Médico de Alta / Certificado de Reincorporación (Opcional)
           </label>
-          <input
-            type="file"
-            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-            onChange={(e) => {
-              if (e.target.files && e.target.files[0]) {
-                setSoporteAlta(e.target.files[0]);
-              }
-            }}
-            required
-            className="w-full text-xs text-slate-600 file:mr-4 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200 cursor-pointer"
-          />
-          {soporteAlta && (
-            <p className="text-xs text-emerald-700 font-semibold mt-1 flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              Soporte cargado: {soporteAlta.name}
-            </p>
-          )}
+          
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+            <label
+              htmlFor="soporte-cierre-file"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 shadow-2xs"
+            >
+              <Upload className="w-4 h-4 text-amber-700" />
+              <span>Seleccionar archivo</span>
+            </label>
+            <input
+              id="soporte-cierre-file"
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  setSoporteAlta(e.target.files[0]);
+                }
+              }}
+              className="sr-only"
+            />
+
+            <div className="flex items-center gap-2 min-w-0">
+              {soporteAlta ? (
+                <div className="flex items-center gap-2 text-xs text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 max-w-full">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="font-semibold truncate">{soporteAlta.name}</span>
+                  <span className="text-slate-400 text-[11px] shrink-0">
+                    ({(soporteAlta.size / 1024).toFixed(1)} KB)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSoporteAlta(null)}
+                    className="text-slate-400 hover:text-rose-600 p-0.5 rounded cursor-pointer"
+                    title="Quitar archivo"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <span className="text-xs text-slate-400 italic">
+                  Ningún archivo seleccionado (opcional)
+                </span>
+              )}
+            </div>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-1">
+            Formatos permitidos: PDF, JPG, PNG, DOC, DOCX.
+          </p>
         </div>
 
         {/* Botones de acción */}
@@ -157,7 +184,7 @@ export default function ModalCierreIndefinida({
             className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-5 py-2.5 sm:py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
           >
             <CheckCircle2 className="w-4 h-4" />
-            <span>{submitting ? 'Procesando Cierre...' : 'Registrar Alta y Cerrar Excusa'}</span>
+            <span>{submitting ? 'Procesando Cierre...' : 'Registrar Retorno y Cerrar Excusa'}</span>
           </button>
         </div>
 

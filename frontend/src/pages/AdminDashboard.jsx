@@ -22,7 +22,6 @@ export default function AdminDashboard() {
 
   const [excusaSeleccionada, setExcusaSeleccionada] = useState(null);
   const [modalDetalleOpen, setModalDetalleOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState(null);
 
   const handleVerDetalle = (excusa) => {
     setExcusaSeleccionada(excusa);
@@ -30,11 +29,7 @@ export default function AdminDashboard() {
   };
 
   const handleExportCsv = async () => {
-    try {
-      await api.exportarCsv(filters);
-    } catch (err) {
-      throw err;
-    }
+    await api.exportarCsv(filters);
   };
 
   return (

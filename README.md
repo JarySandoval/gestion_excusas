@@ -9,7 +9,7 @@ Aplicación web integral para la radicación, gestión, seguimiento y trazabilid
 
 1. **Sin Aprobaciones ni Rechazos Arbitrarios:**
    - La excusa escolar nace formalmente **radicada** al ser registrada por el estudiante/acudiente.
-   - En inasistencias indefinidas (médicas/quirúrgicas), el cierre formal se efectúa al reincorporarse a la jornada mediante el registro de la `fecha_retorno` y el adjunto obligatorio del soporte médico de alta (**HU-08**).
+   - En inasistencias indefinidas (médicas/quirúrgicas), el cierre formal se efectúa al reincorporarse a la jornada mediante el registro de la `fecha_retorno`, siendo el adjunto de soporte documental o alta médica opcional (**HU-08**).
 2. **Estructura de Credenciales de Acceso:**
    - **Usuario:** `[inicial primer nombre][primer apellido][número]` (ejemplo: `jperez1`, `cgomez1`, `mrodriguez1`).
    - **Contraseña:** Número de documento de identidad del usuario (hasheada con `bcryptjs`).
@@ -31,9 +31,9 @@ Aplicación web integral para la radicación, gestión, seguimiento y trazabilid
 | **HU-03** | **Almacenamiento Seguro de Anexos** | Guardado de archivos mediante `multer` en almacenamiento privado desacoplado. Streaming y descarga protegida por token JWT. |
 | **HU-04** | **Consulta Diaria y Filtros Avanzados** | Panel administrativo que carga por defecto las novedades activas del día (`CURDATE()`) con filtros reactivos por rango de fechas, curso/grado, estudiante y motivo. |
 | **HU-05** | **Línea de Tiempo del Estudiante** | Componente interactivo y cronológico (`StudentTimeline`) que visualiza el historial acumulado de inasistencias a través de las diferentes vigencias académicas y cursos cursados. |
-| **HU-06** | **Seguimiento Institucional** | Registro inmutable de actuaciones y observaciones en `` `G1-seguimiento` `` por parte de docentes y coordinadores, con autor, rol y timestamp. |
+| **HU-06** | **Seguimiento Institucional** | Registro de actuaciones y observaciones en `` `G1-seguimiento` `` por parte de docentes y coordinadores. Las observaciones son editables por su autor durante los primeros 15 minutos; posterior a ese lapso, pueden ser eliminadas. |
 | **HU-07** | **Exportación CSV** | Descarga de reporte consolidado en Excel/CSV según los filtros activos, habilitado y visible **únicamente para `id_rol = 1` (Coordinador)** con codificación UTF-8 BOM. |
-| **HU-08** | **Cierre de Excusas Indefinidas** | Módulo para listar excusas abiertas (`es_indefinida = 1 AND fecha_retorno IS NULL`), fijar fecha de retorno y adjuntar de forma obligatoria el soporte médico de alta. |
+| **HU-08** | **Cierre de Excusas Indefinidas** | Módulo para listar excusas abiertas (`es_indefinida = 1 AND fecha_retorno IS NULL`), fijar fecha de retorno y adjuntar soporte médico o de reincorporación (opcional). |
 | **HU-09** | **Anexos Restringidos** | Control estricto de confidencialidad para archivos sensibles: descarga reservada para Coordinación y aviso preventivo en la vista de Docentes. |
 
 ---
@@ -141,4 +141,4 @@ Verifica:
 - Generación de tokens JWT y roles.
 - Control RBAC en descarga de anexos restringidos (HU-09).
 - Restricción de exportación CSV exclusiva para Coordinación (HU-07).
-- Regla de cierre formal de excusas indefinidas con soporte médico obligatorio (HU-08).
+- Regla de cierre formal de excusas indefinidas con fecha de retorno y soporte opcional (HU-08).

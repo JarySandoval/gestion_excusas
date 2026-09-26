@@ -1,4 +1,4 @@
-import { Calendar, History, Clock, FileText, CheckCircle2, ChevronRight, School, User } from 'lucide-react';
+import { History, ChevronRight, School } from 'lucide-react';
 import { ModalidadBadge } from '../common/Badge';
 
 export default function StudentTimeline({
@@ -107,6 +107,8 @@ export default function StudentTimeline({
                         <ModalidadBadge
                           esIndefinida={Boolean(item.es_indefinida)}
                           fechaRetorno={item.fecha_retorno}
+                          fechaHasta={item.fecha_hasta}
+                          fechaDesde={item.fecha_desde}
                         />
                       </div>
                       <div className="flex items-center gap-2 text-xs text-slate-500">

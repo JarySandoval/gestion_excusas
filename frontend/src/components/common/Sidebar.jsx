@@ -101,7 +101,7 @@ export default function Sidebar({ isOpen, onClose }) {
                   className={({ isActive }) => isActive ? activeClass : inactiveClass}
                 >
                   <Clock className="w-4 h-4" />
-                  <span>Excusas Abiertas</span>
+                  <span>Excusas Sin Cerrar</span>
                 </NavLink>
 
                 <NavLink

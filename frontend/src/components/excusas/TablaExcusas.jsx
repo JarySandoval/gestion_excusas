@@ -1,4 +1,4 @@
-import { Eye, CheckCircle, MessageSquare, Paperclip, Lock, Calendar } from 'lucide-react';
+import { Eye, CheckCircle, MessageSquare, Paperclip, Calendar } from 'lucide-react';
 import { ModalidadBadge, RestringidoBadge } from '../common/Badge';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -45,11 +45,13 @@ export default function TablaExcusas({
                   <ModalidadBadge
                     esIndefinida={Boolean(excusa.es_indefinida)}
                     fechaRetorno={excusa.fecha_retorno}
+                    fechaHasta={excusa.fecha_hasta}
+                    fechaDesde={excusa.fecha_desde}
                   />
                 </div>
                 {estaAbierta && (
                   <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-900 rounded-full border border-amber-300 shrink-0">
-                    Abierta
+                    Pendiente Retorno
                   </span>
                 )}
               </div>
@@ -159,7 +161,7 @@ export default function TablaExcusas({
                 <th className="py-3.5 px-4">Radicado</th>
                 {showEstudianteCol && <th className="py-3.5 px-4">Estudiante / Grado</th>}
                 <th className="py-3.5 px-4">Período de Ausencia</th>
-                <th className="py-3.5 px-4">Modalidad</th>
+                <th className="py-3.5 px-4">Estado</th>
                 <th className="py-3.5 px-4">Motivo</th>
                 <th className="py-3.5 px-4 text-center">Anexos</th>
                 <th className="py-3.5 px-4 text-center">Seguimiento</th>
@@ -210,11 +212,13 @@ export default function TablaExcusas({
                       </div>
                     </td>
 
-                    {/* Modalidad */}
+                    {/* Estado */}
                     <td className="py-3 px-4 whitespace-nowrap">
                       <ModalidadBadge
                         esIndefinida={Boolean(excusa.es_indefinida)}
                         fechaRetorno={excusa.fecha_retorno}
+                        fechaHasta={excusa.fecha_hasta}
+                        fechaDesde={excusa.fecha_desde}
                       />
                     </td>
 

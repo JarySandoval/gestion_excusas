@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 import { useExcusas } from '../hooks/useExcusas';
 import TablaExcusas from '../components/excusas/TablaExcusas';
 import DetalleExcusaModal from '../components/excusas/DetalleExcusaModal';
@@ -10,13 +9,11 @@ import {
   PlusCircle,
   Clock,
   CheckCircle2,
-  AlertTriangle,
-  History,
-  HelpCircle
+  AlertTriangle
 } from 'lucide-react';
+import { calcularEstadoExcusa } from '../utils/estados';
 
 export default function EstudianteDashboard() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { excusas, loading, refetch } = useExcusas();
 
@@ -25,11 +22,27 @@ export default function EstudianteDashboard() {
   const [excusaParaCerrar, setExcusaParaCerrar] = useState(null);
   const [modalCierreOpen, setModalCierreOpen] = useState(false);
 
-  // Cálculos estadísticos
+  // Cálculos estadísticos sincronizados al 100% con la lógica institucional
   const total = excusas.length;
+  const vigentes = excusas.filter(e => calcularEstadoExcusa({
+    esIndefinida: e.es_indefinida,
+    fechaRetorno: e.fecha_retorno,
+    fechaHasta: e.fecha_hasta
+  }).estado === 'Vigente');
+
+  const expiradas = excusas.filter(e => calcularEstadoExcusa({
+    esIndefinida: e.es_indefinida,
+    fechaRetorno: e.fecha_retorno,
+    fechaHasta: e.fecha_hasta
+  }).estado === 'Expirada');
+
+  const terminadas = excusas.filter(e => calcularEstadoExcusa({
+    esIndefinida: e.es_indefinida,
+    fechaRetorno: e.fecha_retorno,
+    fechaHasta: e.fecha_hasta
+  }).estado === 'Terminada');
+
   const abiertas = excusas.filter(e => Boolean(e.es_indefinida) && !e.fecha_retorno);
-  const cerradas = excusas.filter(e => Boolean(e.es_indefinida) && Boolean(e.fecha_retorno));
-  const definidas = excusas.filter(e => !e.es_indefinida);
 
   const handleVerDetalle = (excusa) => {
     setExcusaSeleccionada(excusa);
@@ -71,10 +84,10 @@ export default function EstudianteDashboard() {
             <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
             <div>
               <h4 className="text-xs font-bold text-amber-950">
-                Atención: Tiene {abiertas.length} excusa(s) indefinida(s) pendiente(s) de cierre formal
+                Atención: Tiene {abiertas.length} excusa(s) indefinida(s) pendiente(s) de fecha de retorno
               </h4>
               <p className="text-xs text-amber-800 mt-0.5">
-                Al reincorporarse a la jornada escolar, debe registrar la fecha de retorno y adjuntar el soporte médico de alta.
+                Al reincorporarse a la jornada escolar, debe registrar la fecha de retorno (adjuntar el soporte médico es opcional).
               </p>
             </div>
           </div>
@@ -104,11 +117,11 @@ export default function EstudianteDashboard() {
 
         <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-2xs">
           <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-            Definidas
+            Vigentes
           </span>
           <div className="flex items-center justify-between mt-1.5 sm:mt-2">
-            <span className="text-xl sm:text-2xl font-black text-blue-700">{definidas.length}</span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700">
+            <span className="text-xl sm:text-2xl font-black text-emerald-700">{vigentes.length}</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700">
               <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
@@ -116,11 +129,11 @@ export default function EstudianteDashboard() {
 
         <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-2xs">
           <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-            Abiertas
+            Expiradas
           </span>
           <div className="flex items-center justify-between mt-1.5 sm:mt-2">
-            <span className="text-xl sm:text-2xl font-black text-amber-700">{abiertas.length}</span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-700">
+            <span className="text-xl sm:text-2xl font-black text-slate-700">{expiradas.length}</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
@@ -128,11 +141,11 @@ export default function EstudianteDashboard() {
 
         <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-2xs">
           <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-            Cerradas con Alta
+            Terminadas
           </span>
           <div className="flex items-center justify-between mt-1.5 sm:mt-2">
-            <span className="text-xl sm:text-2xl font-black text-emerald-700">{cerradas.length}</span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700">
+            <span className="text-xl sm:text-2xl font-black text-teal-700">{terminadas.length}</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700">
               <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>

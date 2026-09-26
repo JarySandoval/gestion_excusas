@@ -10,10 +10,8 @@ import {
   MessageSquare,
   Send,
   Lock,
-  ShieldAlert,
   AlertTriangle,
   UserCheck,
-  CheckCircle2,
   Pencil,
   Trash2,
   Check,
@@ -36,7 +34,7 @@ export default function DetalleExcusaModal({ isOpen, onClose, excusaId, onActual
   const [guardandoEdit, setGuardandoEdit] = useState(false);
   const [eliminandoSegId, setEliminandoSegId] = useState(null);
   const [accionError, setAccionError] = useState(null);
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
 
   // Actualizar el reloj local para el cálculo dinámico de los 15 minutos
   useEffect(() => {
@@ -215,6 +213,9 @@ export default function DetalleExcusaModal({ isOpen, onClose, excusaId, onActual
                 <ModalidadBadge
                   esIndefinida={Boolean(excusa.es_indefinida)}
                   fechaRetorno={excusa.fecha_retorno}
+                  fechaHasta={excusa.fecha_hasta}
+                  fechaDesde={excusa.fecha_desde}
+                  showModalidadHint={true}
                 />
               </div>
               <span className="text-slate-400 block mt-1 text-[11px]">

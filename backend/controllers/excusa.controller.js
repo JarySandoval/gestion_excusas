@@ -451,15 +451,6 @@ export async function cerrarExcusaIndefinida(req, res, next) {
       });
     }
 
-    // Validar anexo obligatorio (alta médica)
-    if (!req.file) {
-      await connection.rollback();
-      return res.status(400).json({
-        success: false,
-        message: 'Es obligatorio adjuntar el soporte médico o certificado de alta médica para cerrar la excusa indefinida (HU-08).'
-      });
-    }
-
     // Consultar excusa
     const [rows] = await connection.query(
       'SELECT * FROM `G1-excusa` WHERE id = ? LIMIT 1',
@@ -516,34 +507,40 @@ export async function cerrarExcusaIndefinida(req, res, next) {
       [fecha_retorno, id]
     );
 
-    // 2. Insertar el soporte médico de alta en G1-anexo
-    const [nextAnexoIdRows] = await connection.query('SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM `G1-anexo`');
-    const anexoId = nextAnexoIdRows[0].nextId;
+    // 2. Insertar soporte médico en G1-anexo si fue adjuntado (opcional)
+    let soporteNombre = null;
+    if (req.file) {
+      const [nextAnexoIdRows] = await connection.query('SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM `G1-anexo`');
+      const anexoId = nextAnexoIdRows[0].nextId;
 
-    await connection.query(
-      `INSERT INTO \`G1-anexo\`
-       (id, id_excusa, nombre_original, nombre_tecnico, ruta_archivo, es_restringido, fecha_subida)
-       VALUES (?, ?, ?, ?, ?, 0, NOW())`,
-      [
-        anexoId,
-        id,
-        req.file.originalname,
-        req.file.filename,
-        req.file.path
-      ]
-    );
+      await connection.query(
+        `INSERT INTO \`G1-anexo\`
+         (id, id_excusa, nombre_original, nombre_tecnico, ruta_archivo, es_restringido, fecha_subida)
+         VALUES (?, ?, ?, ?, ?, 0, NOW())`,
+        [
+          anexoId,
+          id,
+          req.file.originalname,
+          req.file.filename,
+          req.file.path
+        ]
+      );
+      soporteNombre = req.file.originalname;
+    }
 
     await connection.commit();
 
     return res.status(200).json({
       success: true,
-      message: 'Excusa indefinida cerrada exitosamente con soporte de alta médica.',
+      message: req.file
+        ? 'Excusa indefinida cerrada exitosamente con soporte de alta médica adjunto.'
+        : 'Excusa indefinida cerrada exitosamente.',
       excusa: {
         id: excusa.id,
         radicado: excusa.radicado,
         fecha_desde: excusa.fecha_desde,
         fecha_retorno,
-        soporte_alta: req.file.originalname
+        soporte_alta: soporteNombre
       }
     });
   } catch (error) {

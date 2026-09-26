@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -7,10 +7,12 @@ export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  // Cerrar el drawer móvil automáticamente en cada navegación
-  useEffect(() => {
+  // Cerrar el drawer móvil automáticamente en cada navegación sin provocar renders en cascada
+  const [prevPath, setPrevPath] = useState(location.pathname);
+  if (prevPath !== location.pathname) {
+    setPrevPath(location.pathname);
     setSidebarOpen(false);
-  }, [location.pathname]);
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-100/60">

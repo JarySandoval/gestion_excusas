@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { api } from '../api/client';
 import StudentTimeline from '../components/timeline/StudentTimeline';
 import DetalleExcusaModal from '../components/excusas/DetalleExcusaModal';
-import { History, Search, Users, School } from 'lucide-react';
+import { History, Search } from 'lucide-react';
 
 export default function HistorialEstudiantePage() {
   const { user, isEstudiante, isStaff } = useAuth();
@@ -23,9 +23,7 @@ export default function HistorialEstudiantePage() {
         .then(data => {
           if (data.success) {
             setEstudiantes(data.estudiantes);
-            if (!selectedStudentId && data.estudiantes.length > 0) {
-              setSelectedStudentId(data.estudiantes[0].id);
-            }
+            setSelectedStudentId(prev => prev || (data.estudiantes.length > 0 ? data.estudiantes[0].id : ''));
           }
         })
         .catch(console.error);

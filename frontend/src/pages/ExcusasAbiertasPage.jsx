@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useExcusas } from '../hooks/useExcusas';
 import ModalCierreIndefinida from '../components/excusas/ModalCierreIndefinida';
 import DetalleExcusaModal from '../components/excusas/DetalleExcusaModal';
-import { Clock, CheckCircle2, Eye, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Clock, CheckCircle2, Eye, ShieldCheck } from 'lucide-react';
 
 export default function ExcusasAbiertasPage() {
   const { excusas, loading, refetch } = useExcusas({ abiertas: 'true' });
